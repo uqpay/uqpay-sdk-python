@@ -1,0 +1,30 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "uqpay"
+version = "0.1.0"
+description = "Official UQPAY Python SDK"
+readme = "README.md"
+requires-python = ">=3.9"
+license = { file = "LICENSE" }
+keywords = ["uqpay", "payments", "sdk"]
+dependencies = [
+    "httpx>=0.27",
+    "pgpy>=0.6",
+    "typing_extensions>=4.7.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "python-dotenv>=1.0",
+    "hatch",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["uqpay"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
