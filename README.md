@@ -30,6 +30,102 @@ client = UQPayClient(client_id="your-client-id", api_key="your-api-key", environ
 
 The SDK handles OAuth2 authentication automatically. It fetches an access token using your `client_id` and `api_key`, caches it, and refreshes it before expiry. You do not need to manage tokens manually.
 
+## Configuration
+
+```python
+client = UQPayClient(
+    client_id="your-client-id",
+    api_key="your-api-key",
+    environment="sandbox",       # "sandbox" (default) or "production"
+    timeout=30.0,                # request timeout in seconds
+    max_retries=2,               # automatic retries on transient errors
+    log_level="none",            # "none" | "error" | "warn" | "info" | "debug"
+    redact_fields=["card_number", "cvc"],
+)
+```
+
+Per-request options:
+
+```python
+result = client.banking.payouts.create(
+    {...},
+    request_options={
+        "idempotency_key": "unique-key",
+        "on_behalf_of": "sub-account-id",
+        "timeout": 60,
+        "max_retries": 0,
+    },
+)
+```
+
+### Environment Variables
+
+```
+UQPAY_CLIENT_ID=your-client-id
+UQPAY_API_KEY=your-api-key
+```
+
+## API Coverage
+
+### Banking API
+
+| Resource | Operations |
+|----------|------------|
+| **Balances** | List, Retrieve, ListTransactions |
+| **Transfers** | Create, List, Retrieve |
+| **Deposits** | List, Retrieve |
+| **Beneficiaries** | Create, List, Retrieve, Update, Delete, Check |
+| **Payouts** | Create, List, Retrieve |
+| **Virtual Accounts** | Create, List |
+| **Conversions** | CreateQuote, Create, List, Retrieve, ListDates, ListCurrentRates |
+| **Payment Methods** | List |
+
+### Issuing API
+
+| Resource | Operations |
+|----------|------------|
+| **Cardholders** | Create, List, Retrieve, Update |
+| **Cards** | Create, List, Retrieve, Update, UpdateStatus, Recharge, Withdraw, RetrieveOrder, CreatePanToken, GetSecureIframeUrl |
+| **Transactions** | List, Retrieve |
+| **Products** | List |
+| **Balances** | List, Retrieve, ListTransactions |
+| **Transfers** | Create, Retrieve |
+| **Reports** | Create, Download |
+| **Auth Decision** | PGP-based real-time authorization |
+
+### Connect API
+
+| Resource | Operations |
+|----------|------------|
+| **Accounts** | Create, List, Retrieve |
+| **Sub-Accounts** | Create |
+| **Additional Docs** | Get |
+
+### Payment API
+
+| Resource | Operations |
+|----------|------------|
+| **Payment Intents** | Create, Confirm, Capture, Cancel, List, Retrieve, Update |
+| **Refunds** | Create, List, Retrieve |
+| **Bank Accounts** | Create, List, Retrieve, Update |
+| **Payouts** | Create, List, Retrieve |
+| **Balances** | List, Retrieve |
+| **Attempts** | List, Retrieve |
+| **Settlements** | List |
+
+### Supporting API
+
+| Resource | Operations |
+|----------|------------|
+| **Files** | Upload, DownloadLinks |
+
+### Simulator (sandbox only)
+
+| Resource | Operations |
+|----------|------------|
+| **Issuing** | Authorize, Reverse |
+| **Deposits** | Simulate |
+
 ## Resources
 
 ### Banking
@@ -367,102 +463,6 @@ except UQPayError as e:
 ```
 
 All errors expose: `message`, `code`, `type`, `http_status`, `idempotency_key`.
-
-## Configuration
-
-```python
-client = UQPayClient(
-    client_id="your-client-id",
-    api_key="your-api-key",
-    environment="sandbox",       # "sandbox" (default) or "production"
-    timeout=30.0,                # request timeout in seconds
-    max_retries=2,               # automatic retries on transient errors
-    log_level="none",            # "none" | "error" | "warn" | "info" | "debug"
-    redact_fields=["card_number", "cvc"],
-)
-```
-
-Per-request options:
-
-```python
-result = client.banking.payouts.create(
-    {...},
-    request_options={
-        "idempotency_key": "unique-key",
-        "on_behalf_of": "sub-account-id",
-        "timeout": 60,
-        "max_retries": 0,
-    },
-)
-```
-
-### Environment Variables
-
-```
-UQPAY_CLIENT_ID=your-client-id
-UQPAY_API_KEY=your-api-key
-```
-
-## API Coverage
-
-### Banking API
-
-| Resource | Operations |
-|----------|------------|
-| **Balances** | List, Retrieve, ListTransactions |
-| **Transfers** | Create, List, Retrieve |
-| **Deposits** | List, Retrieve |
-| **Beneficiaries** | Create, List, Retrieve, Update, Delete, Check |
-| **Payouts** | Create, List, Retrieve |
-| **Virtual Accounts** | Create, List |
-| **Conversions** | CreateQuote, Create, List, Retrieve, ListDates, ListCurrentRates |
-| **Payment Methods** | List |
-
-### Issuing API
-
-| Resource | Operations |
-|----------|------------|
-| **Cardholders** | Create, List, Retrieve, Update |
-| **Cards** | Create, List, Retrieve, Update, UpdateStatus, Recharge, Withdraw, RetrieveOrder, CreatePanToken, GetSecureIframeUrl |
-| **Transactions** | List, Retrieve |
-| **Products** | List |
-| **Balances** | List, Retrieve, ListTransactions |
-| **Transfers** | Create, Retrieve |
-| **Reports** | Create, Download |
-| **Auth Decision** | PGP-based real-time authorization |
-
-### Connect API
-
-| Resource | Operations |
-|----------|------------|
-| **Accounts** | Create, List, Retrieve |
-| **Sub-Accounts** | Create |
-| **Additional Docs** | Get |
-
-### Payment API
-
-| Resource | Operations |
-|----------|------------|
-| **Payment Intents** | Create, Confirm, Capture, Cancel, List, Retrieve, Update |
-| **Refunds** | Create, List, Retrieve |
-| **Bank Accounts** | Create, List, Retrieve, Update |
-| **Payouts** | Create, List, Retrieve |
-| **Balances** | List, Retrieve |
-| **Attempts** | List, Retrieve |
-| **Settlements** | List |
-
-### Supporting API
-
-| Resource | Operations |
-|----------|------------|
-| **Files** | Upload, DownloadLinks |
-
-### Simulator (sandbox only)
-
-| Resource | Operations |
-|----------|------------|
-| **Issuing** | Authorize, Reverse |
-| **Deposits** | Simulate |
 
 ## Testing
 
