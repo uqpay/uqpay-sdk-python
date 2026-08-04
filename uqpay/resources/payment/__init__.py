@@ -7,6 +7,7 @@ from .payouts import PaymentPayoutsResource
 from .refunds import RefundsResource
 from .balances import PaymentBalancesResource
 from .settlements import SettlementsResource
+from .terminals import TerminalsResource
 
 
 class PaymentResource:
@@ -18,3 +19,4 @@ class PaymentResource:
         self.refunds = RefundsResource(http, client_id)
         self.balances = PaymentBalancesResource(http, client_id)
         self.settlements = SettlementsResource(http, client_id)
+        self.terminals = TerminalsResource(http, client_id)

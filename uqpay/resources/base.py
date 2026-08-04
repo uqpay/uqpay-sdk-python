@@ -22,6 +22,11 @@ class BaseResource:
     def _delete(self, path: str, request_options: dict[str, Any] | None = None) -> Any:
         return self._http.request("DELETE", path, request_options=request_options)
 
+    def _delete_with_body(
+        self, path: str, body: Any, request_options: dict[str, Any] | None = None
+    ) -> Any:
+        return self._http.request("DELETE", path, body=body, request_options=request_options)
+
     def _qs(self, params: dict[str, Any]) -> str:
         """Serialize a dict to a URL query string, omitting None values."""
         from urllib.parse import urlencode

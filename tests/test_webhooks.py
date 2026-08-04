@@ -9,8 +9,8 @@ import pytest
 
 
 def _sign(secret: str, body: bytes, timestamp: int) -> str:
-    signed = f"{timestamp}.".encode("utf-8") + body
-    return hmac.new(secret.encode("utf-8"), signed, hashlib.sha256).hexdigest()
+    signed = body + str(timestamp).encode("utf-8")
+    return hmac.new(secret.encode("utf-8"), signed, hashlib.sha512).hexdigest()
 
 
 SECRET = "whsec_test_secret"

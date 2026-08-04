@@ -7,5 +7,6 @@ from ._create_sub_account_params import (
 )
 from ._get_additional_documents_params import GetAdditionalDocumentsParams
 from ._retrieve_account_params import RetrieveAccountParams
+from ._rfi_params import AnswerRfiParams, ListRfisParams, RfiAnswerItem, RfiStatus
 
-__all__ = ['CreateAccountParams', 'CreateSubAccountParams', 'CreateSubAccountParamsIndividualInfo', 'GetAdditionalDocumentsParams', 'RetrieveAccountParams']
+__all__ = ['CreateAccountParams', 'CreateSubAccountParams', 'CreateSubAccountParamsIndividualInfo', 'GetAdditionalDocumentsParams', 'RetrieveAccountParams', 'AnswerRfiParams', 'ListRfisParams', 'RfiAnswerItem', 'RfiStatus']
