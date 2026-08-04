@@ -8,7 +8,7 @@ from .error import UQPayWebhookError
 
 
 class WebhookVerifier:
-    """Verify HMAC-SHA256 webhook signatures from UQPAY."""
+    """Verify HMAC-SHA512 webhook signatures from UQPAY."""
 
     def __init__(self, secret: str, tolerance: int = 300) -> None:
         self._secret = secret
@@ -57,12 +57,12 @@ class WebhookVerifier:
                 f"Webhook timestamp is outside the allowed tolerance of {self._tolerance}s"
             )
 
-        # Compute expected signature: HMAC-SHA256(secret, "{timestamp}.{body}")
-        signed_payload = f"{timestamp}.".encode("utf-8") + body_bytes
+        # UQPAY signs the exact raw payload followed by the timestamp string.
+        signed_payload = body_bytes + timestamp_str.encode("utf-8")
         expected = hmac.new(
             self._secret.encode("utf-8"),
             signed_payload,
-            hashlib.sha256,
+            hashlib.sha512,
         ).hexdigest()
 
         if not hmac.compare_digest(expected, signature):

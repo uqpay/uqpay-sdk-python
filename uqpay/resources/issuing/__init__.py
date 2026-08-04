@@ -8,6 +8,7 @@ from .transactions import TransactionsResource
 from .transfers import IssuingTransfersResource
 from .reports import ReportsResource
 from .auth_decision import AuthDecisionResource
+from .merchant_brands import MerchantBrandsResource
 
 
 class IssuingResource:
@@ -20,3 +21,4 @@ class IssuingResource:
         self.transfers = IssuingTransfersResource(http)
         self.reports = ReportsResource(http)
         self.auth_decision = AuthDecisionResource()
+        self.merchant_brands = MerchantBrandsResource(http)

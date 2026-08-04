@@ -6,7 +6,7 @@ Official Python SDK for the [UQPAY API](https://developer.uqpay.com/api/#/) — 
 
 ## Requirements
 
-- Python 3.9+
+- Python 3.11+
 
 ## Installation
 

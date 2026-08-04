@@ -11,5 +11,6 @@ from ._list_payment_attempts_params import ListPaymentAttemptsParams
 from ._list_refunds_params import ListRefundsParams
 from ._update_bank_account_params import UpdateBankAccountParams
 from ._update_payment_intent_params import UpdatePaymentIntentParams
+from ._terminal_params import GetPinKeyParams, RegisterTerminalParams
 
-__all__ = ['CancelPaymentIntentParams', 'CapturePaymentIntentParams', 'ConfirmPaymentIntentParams', 'CreateBankAccountParams', 'CreatePaymentIntentParams', 'CreatePayoutParams', 'CreateRefundParams', 'ListPaymentAttemptsParams', 'ListRefundsParams', 'UpdateBankAccountParams', 'UpdatePaymentIntentParams']
+__all__ = ['CancelPaymentIntentParams', 'CapturePaymentIntentParams', 'ConfirmPaymentIntentParams', 'CreateBankAccountParams', 'CreatePaymentIntentParams', 'CreatePayoutParams', 'CreateRefundParams', 'ListPaymentAttemptsParams', 'ListRefundsParams', 'UpdateBankAccountParams', 'UpdatePaymentIntentParams', 'GetPinKeyParams', 'RegisterTerminalParams']

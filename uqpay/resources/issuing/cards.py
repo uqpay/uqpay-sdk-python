@@ -15,6 +15,11 @@ if TYPE_CHECKING:
         ResetPinParams,
         CardRechargeParams,
         CardWithdrawParams,
+        ElevateLimitParams,
+        EnrollNetworkProtectionParams,
+        RemoveNetworkProtectionParams,
+        ManageCardPinParams,
+        SetDefaultCardArtParams,
     )
     from ...types import RequestOptions
 
@@ -122,3 +127,39 @@ class CardsResource(BaseResource):
         request_options: RequestOptions | None = None,
     ) -> dict[str, Any]:
         return self._post(f"/v1/issuing/cards/{id}/withdraw", params, request_options)
+
+    def elevate_limit(
+        self, id: str, params: ElevateLimitParams,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._post(f"/v1/issuing/cards/{id}/elevate_limit", params, request_options)
+
+    def enroll_network_protection(
+        self, id: str, params: EnrollNetworkProtectionParams,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._post(f"/v1/issuing/cards/{id}/risk", params, request_options)
+
+    def remove_network_protection(
+        self, id: str, params: RemoveNetworkProtectionParams,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._delete_with_body(f"/v1/issuing/cards/{id}/risk", params, request_options)
+
+    def manage_pin(
+        self, params: ManageCardPinParams,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._post("/v1/issuing/cards/manage/pin", params, request_options)
+
+    def list_arts(
+        self, params: dict[str, Any] | None = None,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._get(f"/v1/issuing/cards/arts{self._qs(params or {})}", request_options)
+
+    def set_default_art(
+        self, params: SetDefaultCardArtParams,
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        return self._post("/v1/issuing/cards/arts/default", params, request_options)

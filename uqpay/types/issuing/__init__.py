@@ -13,5 +13,14 @@ from ._retrieve_issuing_balance_params import RetrieveIssuingBalanceParams
 from ._update_card_params import UpdateCardParams
 from ._update_card_status_params import UpdateCardStatusParams
 from ._update_cardholder_params import UpdateCardholderParams
+from ._capability_params import (
+    ClaimUnsolicitedRefundParams,
+    ElevateLimitParams,
+    EnrollNetworkProtectionParams,
+    ManageCardPinParams,
+    ListMerchantBrandsParams,
+    RemoveNetworkProtectionParams,
+    SetDefaultCardArtParams,
+)
 
-__all__ = ['ActivateCardParams', 'AssignCardParams', 'CardRechargeParams', 'CardWithdrawParams', 'CreateCardParams', 'CreateCardholderParams', 'CreateIssuingTransferParams', 'CreateReportParams', 'ResetPinParams', 'RetrieveIssuingBalanceParams', 'UpdateCardParams', 'UpdateCardStatusParams', 'UpdateCardholderParams']
+__all__ = ['ActivateCardParams', 'AssignCardParams', 'CardRechargeParams', 'CardWithdrawParams', 'CreateCardParams', 'CreateCardholderParams', 'CreateIssuingTransferParams', 'CreateReportParams', 'ResetPinParams', 'RetrieveIssuingBalanceParams', 'UpdateCardParams', 'UpdateCardStatusParams', 'UpdateCardholderParams', 'ClaimUnsolicitedRefundParams', 'ElevateLimitParams', 'EnrollNetworkProtectionParams', 'ManageCardPinParams', 'ListMerchantBrandsParams', 'RemoveNetworkProtectionParams', 'SetDefaultCardArtParams']
