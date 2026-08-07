@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-Official Python SDK for the [UQPAY API](https://developer.uqpay.com/api/#/) — a comprehensive payment and card issuing platform.
+Official Python SDK for the [UQPAY API](https://developers.uqpay.com/).
 
 ## Requirements
 
@@ -28,7 +28,7 @@ client = UQPayClient(client_id="your-client-id", api_key="your-api-key", environ
 
 ## Authentication
 
-The SDK handles OAuth2 authentication automatically. It fetches an access token using your `client_id` and `api_key`, caches it, and refreshes it before expiry. You do not need to manage tokens manually.
+The SDK handles authentication automatically. It retrieves a UQPAY Access Token using your `client_id` and `api_key`, caches it, and retrieves a new Token before the current one expires. You do not need to manage Tokens manually.
 
 ## Configuration
 
@@ -60,9 +60,21 @@ result = client.banking.payouts.create(
 
 ### Environment Variables
 
-```
+Store credentials in your environment and pass them explicitly when you create the client. The SDK does not load environment variables or `.env` files automatically.
+
+```bash
 UQPAY_CLIENT_ID=your-client-id
 UQPAY_API_KEY=your-api-key
+```
+
+```python
+import os
+
+client = UQPayClient(
+    client_id=os.environ["UQPAY_CLIENT_ID"],
+    api_key=os.environ["UQPAY_API_KEY"],
+    environment="sandbox",
+)
 ```
 
 ## API Coverage
@@ -399,7 +411,7 @@ except UQPayWebhookError as e:
     return str(e), 400
 ```
 
-The verifier checks the HMAC-SHA256 signature and rejects requests with a timestamp older than 300 seconds.
+The verifier checks `HMAC-SHA512(secret, raw_body + timestamp)` and rejects requests with a timestamp outside the default 300-second replay window.
 
 ## Authorization Decision (PGP)
 
@@ -477,7 +489,7 @@ SKIP_INTEGRATION_TESTS=true pytest tests/ -v
 
 ## Documentation
 
-- [UQPAY API Reference](https://developer.uqpay.com/api/#/)
+- [UQPAY API Reference](https://developers.uqpay.com/)
 
 ## License
 
