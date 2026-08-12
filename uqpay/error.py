@@ -34,7 +34,7 @@ class ForbiddenError(UQPayError):
 
 
 class NotFoundError(UQPayError):
-    """404 — resource not found."""
+    """Resource not found (HTTP 404 or a semantic ``type=not_found`` response)."""
 
 
 class ValidationError(UQPayError):
@@ -142,6 +142,8 @@ def make_api_error(raw: Any, status: int, ctx: dict[str, Any], diag: dict[str, A
         return AuthenticationError(body, status, ctx, diag)
     if status == 403:
         return ForbiddenError(body, status, ctx, diag)
+    if body["type"] == "not_found":
+        return NotFoundError(body, status, ctx, diag)
     if status == 404:
         return NotFoundError(body, status, ctx, diag)
     if status == 409:

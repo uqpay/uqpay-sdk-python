@@ -10,7 +10,7 @@ import time
 import pytest
 from typing_extensions import get_type_hints
 
-from uqpay.error import InvalidIdempotencyKeyError, ValidationError, make_api_error
+from uqpay.error import InvalidIdempotencyKeyError, NotFoundError, make_api_error
 from uqpay.idempotency import validate_idempotency_key
 from uqpay.resources.banking import BankingResource
 from uqpay.types.banking import (
@@ -144,7 +144,7 @@ def test_strict_application_not_found_error_contract() -> None:
         "message": "Virtual account application not found",
     }
     error = make_api_error(raw, 400, {}, {})
-    assert isinstance(error, ValidationError)
+    assert isinstance(error, NotFoundError)
     assert error.http_status == 400
     assert error.type == "not_found"
     assert error.code == "virtual_account_application_not_found"
