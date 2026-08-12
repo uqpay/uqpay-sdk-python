@@ -16,6 +16,7 @@ from uqpay.resources.banking import BankingResource
 from uqpay.types.banking import (
     CreateVirtualAccountParams,
     ListVirtualAccountApplicationsParams,
+    VirtualAccountApplicationResponse,
     VirtualAccountApplicationWebhookEvent,
 )
 from uqpay.webhooks import WebhookVerifier
@@ -215,3 +216,36 @@ def test_verified_webhook_parser_preserves_application_contract(
     bank = event["data"]["results"][0]["virtual_accounts"][0]
     assert bank["close_reason"] == ""
     assert bank["clearing_system"] == {"type": "bic_swift", "value": "BANKBHBM"}
+
+
+def test_async_failed_result_preserves_provisioning_error_fixture() -> None:
+    payload: VirtualAccountApplicationResponse = {
+        "data": {
+            "application_id": "application-id",
+            "public_version": 2,
+            "country": "BH",
+            "currency": "USD",
+            "status": "FAILED",
+            "results": [
+                {
+                    "payment_method": "SWIFT",
+                    "status": "FAILED",
+                    "virtual_accounts": [],
+                    "error": {
+                        "code": "VA_PROVISIONING_FAILED",
+                        "message": "Virtual account provisioning failed",
+                    },
+                }
+            ],
+        }
+    }
+
+    application = payload["data"]
+    result = application["results"][0]
+    assert application["status"] == "FAILED"
+    assert result["status"] == "FAILED"
+    assert result["virtual_accounts"] == []
+    assert result["error"] == {
+        "code": "VA_PROVISIONING_FAILED",
+        "message": "Virtual account provisioning failed",
+    }
