@@ -82,12 +82,12 @@ class SimulatorNotAvailableError(Exception):
 
 
 class InvalidIdempotencyKeyError(Exception):
-    """Caller-supplied idempotency key is not a valid UUID v4."""
+    """Caller-supplied idempotency key violates the gateway contract."""
 
     def __init__(self, key: str) -> None:
         super().__init__(
-            f'Idempotency key "{key}" is not a valid UUID v4. '
-            "Generate one with uuid.uuid4() or generate_idempotency_key()."
+            f'Idempotency key "{key}" must be a non-empty string of at most 64 characters. '
+            "Generate one with generate_idempotency_key()."
         )
 
 

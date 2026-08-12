@@ -3,7 +3,11 @@ from typing import Any, TYPE_CHECKING
 from ..base import BaseResource
 
 if TYPE_CHECKING:
-    from ...types.banking import CreateVirtualAccountParams, ListVirtualAccountsParams
+    from ...types.banking import (
+        CreateVirtualAccountParams,
+        ListVirtualAccountsParams,
+        VirtualAccountApplicationResponse,
+    )
     from ...types import RequestOptions
 
 
@@ -12,7 +16,7 @@ class VirtualAccountsResource(BaseResource):
         self,
         params: CreateVirtualAccountParams,
         request_options: RequestOptions | None = None,
-    ) -> dict[str, Any]:
+    ) -> VirtualAccountApplicationResponse:
         return self._post("/v1/virtual/accounts", params, request_options)
 
     def list(

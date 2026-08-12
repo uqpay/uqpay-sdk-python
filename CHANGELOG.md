@@ -5,6 +5,24 @@ All notable changes to the UQPAY Python SDK are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Virtual Account Application list and retrieve resources, precise application,
+  result, error, bank-detail, clearing-system, summary, and webhook event types.
+- Application-level webhook types for `virtual.account.create`,
+  `virtual.account.update`, and `virtual.account.closed` on `V1.5.1`, `V1.5.2`,
+  and `V1.6.0`.
+
+### Changed
+
+- Create Virtual Account now requires `country`, accepts one `currency`, optional
+  `LOCAL`/`SWIFT` receiving method and optional nickname, and returns the full
+  asynchronous application response model.
+- Explicit idempotency keys now follow the gateway contract of a non-empty value
+  up to 64 characters instead of requiring UUID v4. Generated keys remain UUID v4.
+
 ## [1.2.0]
 
 This bootstrap alignment release establishes the shared stable `1.2` capability

@@ -1,6 +1,7 @@
 from __future__ import annotations
 from ...http import HttpClient
 from .virtual_accounts import VirtualAccountsResource
+from .virtual_account_applications import VirtualAccountApplicationsResource
 from .balances import BankingBalancesResource
 from .beneficiaries import BeneficiariesResource
 from .payouts import BankingPayoutsResource
@@ -13,6 +14,7 @@ from .payment_methods import PaymentMethodsResource
 class BankingResource:
     def __init__(self, http: HttpClient) -> None:
         self.virtual_accounts = VirtualAccountsResource(http)
+        self.virtual_account_applications = VirtualAccountApplicationsResource(http)
         self.balances = BankingBalancesResource(http)
         self.beneficiaries = BeneficiariesResource(http)
         self.payouts = BankingPayoutsResource(http)

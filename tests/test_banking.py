@@ -326,11 +326,29 @@ def test_list_virtual_accounts(client: UQPayClient):
 def test_create_virtual_account(client: UQPayClient):
     try:
         result = client.banking.virtual_accounts.create({
+            "country": "BH",
             "currency": "USD",
+            "payment_method": "SWIFT",
         })
         assert isinstance(result, dict)
     except UQPayError as e:
         pytest.skip(f"Skipped: {e}")
+
+
+def test_list_virtual_account_applications(client: UQPayClient):
+    result = client.banking.virtual_account_applications.list(_PAGE)
+    assert isinstance(result, dict)
+
+
+def test_retrieve_virtual_account_application(client: UQPayClient):
+    result = client.banking.virtual_account_applications.list(_PAGE)
+    applications = result.get("data", [])
+    if not applications:
+        pytest.skip("No Virtual Account applications available")
+    retrieved = client.banking.virtual_account_applications.retrieve(
+        applications[0]["application_id"]
+    )
+    assert isinstance(retrieved, dict)
 
 
 # ---------------------------------------------------------------------------

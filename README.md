@@ -182,7 +182,31 @@ payouts = client.banking.payouts.list({"page_number": 1, "page_size": 20})
 payout = client.banking.payouts.retrieve("payout-id")
 
 # Virtual Accounts
-va = client.banking.virtual_accounts.create({"currency": "USD"})
+# Create returns an accepted application (HTTP 200), not ready bank details.
+application = client.banking.virtual_accounts.create(
+    {
+        "country": "BH",
+        "currency": "USD",
+        "payment_method": "SWIFT",  # omit/None/"" to evaluate LOCAL and SWIFT
+        "nickname": "USD collections",
+    },
+    {
+        "idempotency_key": "merchant-va-application-42",
+        # "on_behalf_of": "connected-account-id",
+    },
+)
+
+# Applications and issued Virtual Accounts are separate collections.
+applications = client.banking.virtual_account_applications.list({
+    "page_number": 1,
+    "page_size": 20,
+    "status": "SUBMITTED",
+    "country": "BH",
+    "currency": "USD",
+})
+application = client.banking.virtual_account_applications.retrieve(
+    application["data"]["application_id"]
+)
 vas = client.banking.virtual_accounts.list({"page_number": 1, "page_size": 20})
 
 # Conversions
@@ -410,6 +434,18 @@ try:
 except UQPayWebhookError as e:
     return str(e), 400
 ```
+
+For `virtual.account.create`, `virtual.account.update`, and
+`virtual.account.closed`, `source_id` equals `data.application_id`. Deduplicate
+retries by `event_id`, then apply the complete `data` object only when its
+`public_version` is greater than the version stored for that application. The
+application event shape is exported as `VirtualAccountApplicationWebhookEvent`
+and is used by webhook versions `V1.5.1`, `V1.5.2`, and `V1.6.0`.
+
+Synchronous Create failures raise `UQPayError` and create no application. Once a
+request is accepted, method-level asynchronous failures appear in
+`data.results[].error`. Every issued bank detail always includes `close_reason`;
+use `status == "CLOSED"` rather than requiring a non-empty reason.
 
 The verifier checks `HMAC-SHA512(secret, raw_body + timestamp)` and rejects requests with a timestamp outside the default 300-second replay window.
 
