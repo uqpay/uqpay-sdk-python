@@ -23,8 +23,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create Virtual Account now requires `country`, accepts one `currency`, optional
   `LOCAL`/`SWIFT` receiving method and optional nickname, and returns the full
   asynchronous application response model.
-- Explicit idempotency keys now follow the gateway contract of a non-empty value
-  up to 64 characters instead of requiring UUID v4. Generated keys remain UUID v4.
+- Create Virtual Account continues to forward `x-idempotency-key`; explicit
+  values now follow the gateway contract of a non-empty value up to 64
+  characters instead of requiring UUID v4. Generated keys remain UUID v4.
 
 ## [1.2.0]
 
