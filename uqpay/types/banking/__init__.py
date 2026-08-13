@@ -10,5 +10,33 @@ from ._create_virtual_account_params import CreateVirtualAccountParams
 from ._list_current_rates_params import ListCurrentRatesParams
 from ._list_virtual_accounts_params import ListVirtualAccountsParams
 from ._update_beneficiary_params import UpdateBeneficiaryParams
+from ._virtual_account_application import (
+    ListVirtualAccountApplicationsParams,
+    VirtualAccountApplication,
+    VirtualAccountApplicationBankDetail,
+    VirtualAccountApplicationClearingSystem,
+    VirtualAccountApplicationErrorResponse,
+    VirtualAccountApplicationListResponse,
+    VirtualAccountApplicationResponse,
+    VirtualAccountApplicationResult,
+    VirtualAccountApplicationResultError,
+    VirtualAccountApplicationResultStatus,
+    VirtualAccountApplicationStatus,
+    VirtualAccountApplicationSummary,
+    VirtualAccountApplicationWebhookEvent,
+    VirtualAccountPaymentMethod,
+)
 
-__all__ = ['CheckBeneficiaryParams', 'CreateBeneficiaryParams', 'CreateConversionParams', 'CreatePayoutParams', 'CreateQuoteParams', 'CreateTransferParams', 'CreateVirtualAccountParams', 'ListCurrentRatesParams', 'ListVirtualAccountsParams', 'UpdateBeneficiaryParams']
+__all__ = [
+    'CheckBeneficiaryParams', 'CreateBeneficiaryParams', 'CreateConversionParams',
+    'CreatePayoutParams', 'CreateQuoteParams', 'CreateTransferParams',
+    'CreateVirtualAccountParams', 'ListCurrentRatesParams',
+    'ListVirtualAccountApplicationsParams', 'ListVirtualAccountsParams',
+    'UpdateBeneficiaryParams', 'VirtualAccountApplication',
+    'VirtualAccountApplicationBankDetail', 'VirtualAccountApplicationClearingSystem',
+    'VirtualAccountApplicationErrorResponse', 'VirtualAccountApplicationListResponse',
+    'VirtualAccountApplicationResponse', 'VirtualAccountApplicationResult',
+    'VirtualAccountApplicationResultError', 'VirtualAccountApplicationResultStatus',
+    'VirtualAccountApplicationStatus', 'VirtualAccountApplicationSummary',
+    'VirtualAccountApplicationWebhookEvent', 'VirtualAccountPaymentMethod',
+]

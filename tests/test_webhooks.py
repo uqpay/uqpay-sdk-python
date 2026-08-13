@@ -26,6 +26,17 @@ def test_valid_signature_returns_event():
     assert event["event_type"] == "card.3ds.otp"
 
 
+def test_valid_millisecond_timestamp_from_webhook_hub():
+    verifier = WebhookVerifier(SECRET)
+    body = json.dumps(PAYLOAD).encode()
+    ts = int(time.time() * 1000)
+    sig = _sign(SECRET, body, ts)
+    event = verifier.construct_event(
+        body, {"x-wk-signature": sig, "x-wk-timestamp": str(ts)}
+    )
+    assert event["event_id"] == "abc123"
+
+
 def test_wrong_signature_raises():
     verifier = WebhookVerifier(SECRET)
     body = json.dumps(PAYLOAD).encode()

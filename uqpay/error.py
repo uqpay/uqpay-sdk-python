@@ -34,7 +34,7 @@ class ForbiddenError(UQPayError):
 
 
 class NotFoundError(UQPayError):
-    """404 — resource not found."""
+    """Resource not found (HTTP 404 or a semantic ``type=not_found`` response)."""
 
 
 class ValidationError(UQPayError):
@@ -82,12 +82,12 @@ class SimulatorNotAvailableError(Exception):
 
 
 class InvalidIdempotencyKeyError(Exception):
-    """Caller-supplied idempotency key is not a valid UUID v4."""
+    """Caller-supplied idempotency key violates the gateway contract."""
 
     def __init__(self, key: str) -> None:
         super().__init__(
-            f'Idempotency key "{key}" is not a valid UUID v4. '
-            "Generate one with uuid.uuid4() or generate_idempotency_key()."
+            f'Idempotency key "{key}" must be a non-empty string of at most 64 characters. '
+            "Generate one with generate_idempotency_key()."
         )
 
 
@@ -142,6 +142,8 @@ def make_api_error(raw: Any, status: int, ctx: dict[str, Any], diag: dict[str, A
         return AuthenticationError(body, status, ctx, diag)
     if status == 403:
         return ForbiddenError(body, status, ctx, diag)
+    if body["type"] == "not_found":
+        return NotFoundError(body, status, ctx, diag)
     if status == 404:
         return NotFoundError(body, status, ctx, diag)
     if status == 409:

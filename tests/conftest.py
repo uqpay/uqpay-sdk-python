@@ -159,10 +159,9 @@ def virtual_account(client: UQPayClient) -> dict:
                         return items[0]
     except Exception:
         pass
-    try:
-        return client.banking.virtual_accounts.create({"currency": "USD"})
-    except Exception:
-        return {}
+    # Create now returns an application, not issued bank details. Integration
+    # tests that need an ACTIVE account must wait for provisioning and list again.
+    return {}
 
 
 @pytest.fixture(scope="session")
