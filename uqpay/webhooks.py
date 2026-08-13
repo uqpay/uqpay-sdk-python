@@ -50,9 +50,13 @@ class WebhookVerifier:
         except ValueError as exc:
             raise UQPayWebhookError(f"Invalid x-wk-timestamp: {timestamp_str!r}") from exc
 
+        # Webhook Hub emits Unix milliseconds. Keep accepting Unix seconds for
+        # compatibility, but always sign with the original header string.
+        timestamp_seconds = timestamp // 1000 if timestamp >= 1_000_000_000_000 else timestamp
+
         # Check timestamp tolerance
         now = int(time.time())
-        if abs(now - timestamp) > self._tolerance:
+        if abs(now - timestamp_seconds) > self._tolerance:
             raise UQPayWebhookError(
                 f"Webhook timestamp is outside the allowed tolerance of {self._tolerance}s"
             )
