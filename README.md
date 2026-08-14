@@ -437,7 +437,9 @@ except UQPayWebhookError as e:
 
 For `virtual.account.create`, `virtual.account.update`, and
 `virtual.account.closed`, webhook-only `data.account_id` and `data.direct_id`
-identify the owning account context, while `source_id` equals
+identify the owning account context. `account_id` is the UUID of the account that
+owns the application. `direct_id` is a string: it is `"0"` for a main account,
+or the connected account's main account ID. `source_id` equals
 `data.application_id`. These two account fields are not part of Create, List, or
 Retrieve application responses. Deduplicate
 retries by `event_id`, then apply the complete `data` object only when its
