@@ -16,10 +16,12 @@ from uqpay.resources.banking import BankingResource
 from uqpay.types.banking import (
     CreateVirtualAccountParams,
     ListVirtualAccountApplicationsParams,
+    VirtualAccountApplication,
     VirtualAccountApplicationResponse,
+    VirtualAccountApplicationWebhookData,
     VirtualAccountApplicationWebhookEvent,
 )
-from uqpay.webhooks import WebhookVerifier
+from uqpay.webhooks import WebhookVerifier, is_virtual_account_application_event
 
 
 class FakeHttp:
@@ -120,12 +122,18 @@ def test_create_and_list_required_typed_fields() -> None:
 
 def test_webhook_type_pins_versions_and_application_events() -> None:
     hints = get_type_hints(VirtualAccountApplicationWebhookEvent)
+    shared_hints = get_type_hints(VirtualAccountApplication)
+    webhook_data_hints = get_type_hints(VirtualAccountApplicationWebhookData)
     assert set(get_args(hints["version"])) == {"V1.5.1", "V1.5.2", "V1.6.0"}
     assert set(get_args(hints["event_type"])) == {
         "virtual.account.create",
         "virtual.account.update",
         "virtual.account.closed",
     }
+    assert "account_id" not in shared_hints
+    assert "direct_id" not in shared_hints
+    assert webhook_data_hints["account_id"] is str
+    assert webhook_data_hints["direct_id"] is str
 
 
 def test_idempotency_key_accepts_gateway_contract() -> None:
@@ -171,6 +179,8 @@ def test_verified_webhook_parser_preserves_application_contract(
         "event_id": "event-id",
         "source_id": "application-id",
         "data": {
+            "account_id": "account-id",
+            "direct_id": "direct-id",
             "application_id": "application-id",
             "public_version": 3,
             "country": "BH",
@@ -211,11 +221,39 @@ def test_verified_webhook_parser_preserves_application_contract(
         body,
         {"x-wk-signature": signature, "x-wk-timestamp": timestamp},
     )
+    assert is_virtual_account_application_event(event)
+    assert event["data"]["account_id"] == "account-id"
+    assert event["data"]["direct_id"] == "direct-id"
     assert event["source_id"] == event["data"]["application_id"]
     assert event["data"]["public_version"] == 3
     bank = event["data"]["results"][0]["virtual_accounts"][0]
     assert bank["close_reason"] == ""
     assert bank["clearing_system"] == {"type": "bic_swift", "value": "BANKBHBM"}
+
+
+def test_unknown_old_virtual_event_remains_generic() -> None:
+    secret = "whsec_legacy_va_test"
+    payload = {
+        "version": "V1.5.0",
+        "event_name": "VIRTUAL",
+        "event_type": "virtual.account.create",
+        "event_id": "legacy-event-id",
+        "source_id": "legacy-bank-id",
+        "data": {"account_bank_id": "legacy-bank-id"},
+    }
+    body = json.dumps(payload, separators=(",", ":")).encode()
+    timestamp = str(int(time.time()))
+    signature = hmac.new(
+        secret.encode(), body + timestamp.encode(), hashlib.sha512
+    ).hexdigest()
+    event = WebhookVerifier(secret).construct_event(
+        body,
+        {"x-wk-signature": signature, "x-wk-timestamp": timestamp},
+    )
+
+    assert not is_virtual_account_application_event(event)
+    assert event == payload
+    assert event["data"] == {"account_bank_id": "legacy-bank-id"}
 
 
 def test_async_failed_result_preserves_provisioning_error_fixture() -> None:

@@ -83,6 +83,13 @@ class VirtualAccountApplicationErrorResponse(TypedDict):
     message: str
 
 
+class VirtualAccountApplicationWebhookData(VirtualAccountApplication):
+    """Application shape used only by VA application webhook events."""
+
+    account_id: str
+    direct_id: str
+
+
 class VirtualAccountApplicationWebhookEvent(TypedDict):
     version: Literal["V1.5.1", "V1.5.2", "V1.6.0"]
     event_name: Literal["VIRTUAL"]
@@ -91,4 +98,4 @@ class VirtualAccountApplicationWebhookEvent(TypedDict):
     ]
     event_id: str
     source_id: str
-    data: VirtualAccountApplication
+    data: VirtualAccountApplicationWebhookData

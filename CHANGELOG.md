@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+
+- Restored the always-present webhook-only `account_id` and `direct_id` fields to
+  Virtual Account application event types without adding them to Create, List,
+  or Retrieve application responses. Unknown older event versions remain
+  available through the generic verified-event dictionary.
+
 ## [2.0.0]
 
 This major release replaces the previous Virtual Account Create and webhook
