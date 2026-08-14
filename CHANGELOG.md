@@ -24,9 +24,10 @@ and `V1.6.0`.
 ### Fixed
 
 - Restored the always-present webhook-only `account_id` and `direct_id` fields to
-  Virtual Account application event types without adding them to Create, List,
-  or Retrieve application responses. Unknown older event versions remain
-  available through the generic verified-event dictionary.
+  Virtual Account application event types. REST public SDK types remain unchanged
+  in this scope while elevation of the observed Sandbox Create/List/Retrieve
+  fields into the Developer Docs contract is pending. Unknown older event versions
+  remain available through the generic verified-event dictionary.
 
 ### Changed
 

@@ -84,11 +84,12 @@ class VirtualAccountApplicationErrorResponse(TypedDict):
 
 
 class VirtualAccountApplicationWebhookData(VirtualAccountApplication):
-    """Application shape used only by VA application webhook events.
+    """Webhook-specific application shape added in the current SDK scope.
 
     ``account_id`` is the UUID of the account that owns the application.
     ``direct_id`` is a string: ``"0"`` for a main account, or the connected
-    account's main account ID.
+    account's main account ID. The REST public type is unchanged pending a
+    confirmed Developer Docs contract for these fields.
     """
 
     account_id: str

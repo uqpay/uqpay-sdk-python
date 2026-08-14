@@ -440,8 +440,10 @@ For `virtual.account.create`, `virtual.account.update`, and
 identify the owning account context. `account_id` is the UUID of the account that
 owns the application. `direct_id` is a string: it is `"0"` for a main account,
 or the connected account's main account ID. `source_id` equals
-`data.application_id`. These two account fields are not part of Create, List, or
-Retrieve application responses. Deduplicate
+`data.application_id`. This release adds typed access in the webhook shape only;
+the REST public SDK types remain unchanged while elevation of the Sandbox
+Create/List/Retrieve fields into the Developer Docs contract is pending.
+Deduplicate
 retries by `event_id`, then apply the complete `data` object only when its
 `public_version` is greater than the version stored for that application. The
 application event shape is exported as `VirtualAccountApplicationWebhookEvent`
