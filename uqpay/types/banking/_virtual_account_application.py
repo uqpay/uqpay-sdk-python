@@ -50,6 +50,8 @@ class VirtualAccountApplicationResult(TypedDict):
 
 
 class VirtualAccountApplication(TypedDict):
+    account_id: str
+    direct_id: str
     application_id: str
     public_version: int
     country: str
@@ -63,6 +65,8 @@ class VirtualAccountApplicationResponse(TypedDict):
 
 
 class VirtualAccountApplicationSummary(TypedDict):
+    account_id: str
+    direct_id: str
     application_id: str
     public_version: int
     country: str
@@ -84,16 +88,13 @@ class VirtualAccountApplicationErrorResponse(TypedDict):
 
 
 class VirtualAccountApplicationWebhookData(VirtualAccountApplication):
-    """Webhook-specific application shape added in the current SDK scope.
+    """Application data delivered by VA application webhook events.
 
-    ``account_id`` is the UUID of the account that owns the application.
-    ``direct_id`` is a string: ``"0"`` for a main account, or the connected
-    account's main account ID. The REST public type is unchanged pending a
-    confirmed Developer Docs contract for these fields.
+    This subtype inherits the same required ``account_id`` and ``direct_id``
+    fields as Create/Retrieve application details. ``account_id`` is the UUID of
+    the account that owns the application. ``direct_id`` is a string: ``"0"``
+    for a main account, or the connected account's main account ID.
     """
-
-    account_id: str
-    direct_id: str
 
 
 class VirtualAccountApplicationWebhookEvent(TypedDict):

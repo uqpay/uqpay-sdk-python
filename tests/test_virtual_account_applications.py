@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Any, get_args
+from typing import Any, cast, get_args
 
 import hashlib
 import hmac
@@ -18,6 +18,7 @@ from uqpay.types.banking import (
     ListVirtualAccountApplicationsParams,
     VirtualAccountApplication,
     VirtualAccountApplicationResponse,
+    VirtualAccountApplicationSummary,
     VirtualAccountApplicationWebhookData,
     VirtualAccountApplicationWebhookEvent,
 )
@@ -130,10 +131,41 @@ def test_webhook_type_pins_versions_and_application_events() -> None:
         "virtual.account.update",
         "virtual.account.closed",
     }
-    assert "account_id" not in shared_hints
-    assert "direct_id" not in shared_hints
+    summary_hints = get_type_hints(VirtualAccountApplicationSummary)
+    assert shared_hints["account_id"] is str
+    assert shared_hints["direct_id"] is str
+    assert summary_hints["account_id"] is str
+    assert summary_hints["direct_id"] is str
     assert webhook_data_hints["account_id"] is str
     assert webhook_data_hints["direct_id"] is str
+    assert {"account_id", "direct_id"} <= VirtualAccountApplication.__required_keys__
+    assert {"account_id", "direct_id"} <= VirtualAccountApplicationSummary.__required_keys__
+
+
+def test_rest_application_json_includes_required_account_context() -> None:
+    detail = cast(
+        VirtualAccountApplicationResponse,
+        json.loads(
+            '{"data":{"account_id":"connected-account-uuid",'
+            '"direct_id":"main-account-uuid","application_id":"app-id",'
+            '"public_version":1,"country":"BH","currency":"USD",'
+            '"status":"SUBMITTED","results":[]}}'
+        ),
+    )
+    summary = cast(
+        VirtualAccountApplicationSummary,
+        json.loads(
+            '{"account_id":"main-account-uuid","direct_id":"0",'
+            '"application_id":"app-id","public_version":1,"country":"BH",'
+            '"currency":"USD","status":"SUBMITTED",'
+            '"created_at":"2026-08-12T00:00:00Z"}'
+        ),
+    )
+
+    assert detail["data"]["account_id"] == "connected-account-uuid"
+    assert detail["data"]["direct_id"] == "main-account-uuid"
+    assert summary["account_id"] == "main-account-uuid"
+    assert summary["direct_id"] == "0"
 
 
 def test_idempotency_key_accepts_gateway_contract() -> None:
@@ -259,6 +291,8 @@ def test_unknown_old_virtual_event_remains_generic() -> None:
 def test_async_failed_result_preserves_provisioning_error_fixture() -> None:
     payload: VirtualAccountApplicationResponse = {
         "data": {
+            "account_id": "account-id",
+            "direct_id": "0",
             "application_id": "application-id",
             "public_version": 2,
             "country": "BH",

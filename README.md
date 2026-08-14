@@ -436,15 +436,13 @@ except UQPayWebhookError as e:
 ```
 
 For `virtual.account.create`, `virtual.account.update`, and
-`virtual.account.closed`, webhook-only `data.account_id` and `data.direct_id`
+`virtual.account.closed`, `data.account_id` and `data.direct_id`
 identify the owning account context. `account_id` is the UUID of the account that
 owns the application. `direct_id` is a string: it is `"0"` for a main account,
 or the connected account's main account ID. `source_id` equals
-`data.application_id`. This release adds typed access in the webhook shape only;
-the REST public SDK types remain unchanged while elevation of the Sandbox
-Create/List/Retrieve fields into the Developer Docs contract is pending.
-Deduplicate
-retries by `event_id`, then apply the complete `data` object only when its
+`data.application_id`. The same required `account_id` and `direct_id` fields are
+typed on Create and Retrieve application details and on every List application
+summary. Deduplicate retries by `event_id`, then apply the complete `data` object only when its
 `public_version` is greater than the version stored for that application. The
 application event shape is exported as `VirtualAccountApplicationWebhookEvent`
 and is used by webhook versions `V1.5.1`, `V1.5.2`, and `V1.6.0`.
