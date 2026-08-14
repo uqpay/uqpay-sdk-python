@@ -50,6 +50,8 @@ class VirtualAccountApplicationResult(TypedDict):
 
 
 class VirtualAccountApplication(TypedDict):
+    account_id: str
+    direct_id: str
     application_id: str
     public_version: int
     country: str
@@ -63,6 +65,8 @@ class VirtualAccountApplicationResponse(TypedDict):
 
 
 class VirtualAccountApplicationSummary(TypedDict):
+    account_id: str
+    direct_id: str
     application_id: str
     public_version: int
     country: str
@@ -83,6 +87,16 @@ class VirtualAccountApplicationErrorResponse(TypedDict):
     message: str
 
 
+class VirtualAccountApplicationWebhookData(VirtualAccountApplication):
+    """Application data delivered by VA application webhook events.
+
+    This subtype inherits the same required ``account_id`` and ``direct_id``
+    fields as Create/Retrieve application details. ``account_id`` is the UUID of
+    the account that owns the application. ``direct_id`` is a string: ``"0"``
+    for a main account, or the connected account's main account ID.
+    """
+
+
 class VirtualAccountApplicationWebhookEvent(TypedDict):
     version: Literal["V1.5.1", "V1.5.2", "V1.6.0"]
     event_name: Literal["VIRTUAL"]
@@ -91,4 +105,4 @@ class VirtualAccountApplicationWebhookEvent(TypedDict):
     ]
     event_id: str
     source_id: str
-    data: VirtualAccountApplication
+    data: VirtualAccountApplicationWebhookData

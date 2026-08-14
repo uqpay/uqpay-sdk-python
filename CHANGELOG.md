@@ -7,13 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.0.0]
+
+This major release replaces the previous Virtual Account Create and webhook
+contracts with the Virtual Account application lifecycle contract. Existing
+Virtual Account integrations must migrate before adopting this version.
+
 ### Added
 
 - Virtual Account Application list and retrieve resources, precise application,
   result, error, bank-detail, clearing-system, summary, and webhook event types.
 - Application-level webhook types for `virtual.account.create`,
   `virtual.account.update`, and `virtual.account.closed` on `V1.5.1`, `V1.5.2`,
-  and `V1.6.0`.
+and `V1.6.0`.
+
+### Fixed
+
+- Restored the required `account_id` and `direct_id` fields across Virtual Account
+  Create/Retrieve application details, List summaries, and application webhook
+  event types. `account_id` identifies the owning account UUID; `direct_id` is
+  `"0"` for a main account or the connected account's main account ID. Unknown
+  older event versions remain available through the generic verified-event
+  dictionary.
 
 ### Changed
 
@@ -26,6 +41,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Create Virtual Account continues to forward `x-idempotency-key`; explicit
   values now follow the gateway contract of a non-empty value up to 64
   characters instead of requiring UUID v4. Generated keys remain UUID v4.
+
+### Breaking
+
+- Existing Create Virtual Account callers must add `country`, replace a currency
+  list with one `currency`, and parse HTTP 200 application data instead of the
+  previous HTTP 202 `message` and `request_id` response.
+- Virtual Account webhook consumers must correlate by `application_id`, process
+  complete application data, and use `public_version` for ordering.
+
+### Migration
+
+- Install with `pip install --upgrade uqpay==2.0.0` and follow the
+  [Virtual Account migration guide](https://developers.uqpay.com/global-account/v1.6/guide/migrate-to-virtual-account-applications).
 
 ## [1.2.0]
 

@@ -436,11 +436,20 @@ except UQPayWebhookError as e:
 ```
 
 For `virtual.account.create`, `virtual.account.update`, and
-`virtual.account.closed`, `source_id` equals `data.application_id`. Deduplicate
-retries by `event_id`, then apply the complete `data` object only when its
+`virtual.account.closed`, `data.account_id` and `data.direct_id`
+identify the owning account context. `account_id` is the UUID of the account that
+owns the application. `direct_id` is a string: it is `"0"` for a main account,
+or the connected account's main account ID. `source_id` equals
+`data.application_id`. The same required `account_id` and `direct_id` fields are
+typed on Create and Retrieve application details and on every List application
+summary. Deduplicate retries by `event_id`, then apply the complete `data` object only when its
 `public_version` is greater than the version stored for that application. The
 application event shape is exported as `VirtualAccountApplicationWebhookEvent`
 and is used by webhook versions `V1.5.1`, `V1.5.2`, and `V1.6.0`.
+
+Use `is_virtual_account_application_event(event)` to narrow the generic verified
+dictionary before typed access. Unknown older Virtual Account event versions stay
+available as generic dictionaries and are not reclassified as application data.
 
 Synchronous Create failures raise `UQPayError` and create no application. Once a
 request is accepted, method-level asynchronous failures appear in

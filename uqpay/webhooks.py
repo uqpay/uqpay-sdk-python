@@ -4,7 +4,38 @@ import hmac
 import json
 import time
 from typing import Any
+from typing_extensions import TypeGuard
 from .error import UQPayWebhookError
+from .types.banking import VirtualAccountApplicationWebhookEvent
+
+_VA_APPLICATION_VERSIONS = frozenset({"V1.5.1", "V1.5.2", "V1.6.0"})
+_VA_APPLICATION_EVENT_TYPES = frozenset({
+    "virtual.account.create",
+    "virtual.account.update",
+    "virtual.account.closed",
+})
+
+
+def is_virtual_account_application_event(
+    event: dict[str, Any],
+) -> TypeGuard[VirtualAccountApplicationWebhookEvent]:
+    """Narrow supported VA application events without reclassifying old events."""
+    data = event.get("data")
+    if not isinstance(data, dict):
+        return False
+    return (
+        event.get("version") in _VA_APPLICATION_VERSIONS
+        and event.get("event_name") == "VIRTUAL"
+        and event.get("event_type") in _VA_APPLICATION_EVENT_TYPES
+        and isinstance(event.get("event_id"), str)
+        and isinstance(event.get("source_id"), str)
+        and isinstance(data.get("application_id"), str)
+        and event["source_id"] == data["application_id"]
+        and isinstance(data.get("account_id"), str)
+        and bool(data["account_id"])
+        and isinstance(data.get("direct_id"), str)
+        and bool(data["direct_id"])
+    )
 
 
 class WebhookVerifier:

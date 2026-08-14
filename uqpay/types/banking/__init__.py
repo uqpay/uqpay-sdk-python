@@ -23,6 +23,7 @@ from ._virtual_account_application import (
     VirtualAccountApplicationResultStatus,
     VirtualAccountApplicationStatus,
     VirtualAccountApplicationSummary,
+    VirtualAccountApplicationWebhookData,
     VirtualAccountApplicationWebhookEvent,
     VirtualAccountPaymentMethod,
 )
@@ -38,5 +39,6 @@ __all__ = [
     'VirtualAccountApplicationResponse', 'VirtualAccountApplicationResult',
     'VirtualAccountApplicationResultError', 'VirtualAccountApplicationResultStatus',
     'VirtualAccountApplicationStatus', 'VirtualAccountApplicationSummary',
-    'VirtualAccountApplicationWebhookEvent', 'VirtualAccountPaymentMethod',
+    'VirtualAccountApplicationWebhookData', 'VirtualAccountApplicationWebhookEvent',
+    'VirtualAccountPaymentMethod',
 ]
