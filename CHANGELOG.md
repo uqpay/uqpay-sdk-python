@@ -7,13 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
-
-- Restored the always-present webhook-only `account_id` and `direct_id` fields to
-  Virtual Account application event types without adding them to Create, List,
-  or Retrieve application responses. Unknown older event versions remain
-  available through the generic verified-event dictionary.
-
 ## [2.0.0]
 
 This major release replaces the previous Virtual Account Create and webhook
@@ -26,7 +19,14 @@ Virtual Account integrations must migrate before adopting this version.
   result, error, bank-detail, clearing-system, summary, and webhook event types.
 - Application-level webhook types for `virtual.account.create`,
   `virtual.account.update`, and `virtual.account.closed` on `V1.5.1`, `V1.5.2`,
-  and `V1.6.0`.
+and `V1.6.0`.
+
+### Fixed
+
+- Restored the always-present webhook-only `account_id` and `direct_id` fields to
+  Virtual Account application event types without adding them to Create, List,
+  or Retrieve application responses. Unknown older event versions remain
+  available through the generic verified-event dictionary.
 
 ### Changed
 
