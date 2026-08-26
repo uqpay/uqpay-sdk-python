@@ -81,7 +81,8 @@ class CreateSubAccountParamsRepresentative(TypedDict, total=False):
     job_title: Required[str]
     nationality: Required[str]
     phone_number: Required[str]
-    date_of_birth: Required[str]
+    # Optional for COMPANY representatives. When provided, use YYYY-MM-DD.
+    date_of_birth: NotRequired[str]
     country_or_territory: Required[str]
     street_address: Required[str]
     apartment_suite_or_floor: NotRequired[str]
