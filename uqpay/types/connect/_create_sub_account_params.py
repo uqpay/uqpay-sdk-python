@@ -1,6 +1,18 @@
 from __future__ import annotations
-from typing import List
-from typing_extensions import Literal, NotRequired, Required, TypedDict
+from typing import List, Union
+from typing_extensions import Literal, Never, NotRequired, Required, TypeAlias, TypedDict
+
+
+CompanyAccountPurpose = Literal[
+    "PAYMENT_COLLECTION",
+    "PAYOUT_DISBURSEMENT",
+    "MULTI_CURRENCY_BANKING",
+    "CARD_ISSUING",
+    "CRYPTO_RAMP",
+    "GLOBAL_TRANSFER",
+    "TREASURY_FX",
+    "OTHERS",
+]
 
 
 class CreateSubAccountParamsCompanyInfo(TypedDict, total=False):
@@ -79,10 +91,11 @@ class CreateSubAccountParamsRepresentative(TypedDict, total=False):
     email_address: Required[str]
     is_applicant: Required[str]
     job_title: Required[str]
+    ownership_percentage: Required[str]
     nationality: Required[str]
     phone_number: Required[str]
-    # Optional for COMPANY representatives. When provided, use YYYY-MM-DD.
-    date_of_birth: NotRequired[str]
+    # Required for COMPANY representatives. Use YYYY-MM-DD.
+    date_of_birth: Required[str]
     country_or_territory: Required[str]
     street_address: Required[str]
     apartment_suite_or_floor: NotRequired[str]
@@ -99,6 +112,11 @@ class CreateSubAccountParamsOwnershipDetails(TypedDict, total=False):
     shareholder_docs: NotRequired[List[str]]
 
 
+class CreateSubAccountParamsCompanyOwnershipDetails(TypedDict, total=False):
+    representatives: Required[List[CreateSubAccountParamsRepresentative]]
+    shareholder_docs: NotRequired[List[str]]
+
+
 class CreateSubAccountParamsBusinessDetails(TypedDict, total=False):
     country_or_territory: Required[str]
     street_address: Required[str]
@@ -111,9 +129,28 @@ class CreateSubAccountParamsBusinessDetails(TypedDict, total=False):
     number_of_employee: NotRequired[str]
     website_url: NotRequired[str]
     company_description: NotRequired[str]
-    account_purpose: NotRequired[List[str]]
+    account_purpose: Required[List[CompanyAccountPurpose]]
+    banking_currencies: Required[List[str]]
+    banking_countries: Required[List[str]]
+    articles_of_association: Required[List[str]]
+
+
+class CreateSubAccountParamsOptionalBusinessDetails(TypedDict, total=False):
+    country_or_territory: NotRequired[str]
+    street_address: NotRequired[str]
+    city: NotRequired[str]
+    state: NotRequired[str]
+    postal_code: NotRequired[str]
+    industry: NotRequired[str]
+    turnover_monthly: NotRequired[str]
+    turnover_monthly_currency: NotRequired[str]
+    number_of_employee: NotRequired[str]
+    website_url: NotRequired[str]
+    company_description: NotRequired[str]
+    account_purpose: NotRequired[List[CompanyAccountPurpose]]
     banking_currencies: NotRequired[List[str]]
     banking_countries: NotRequired[List[str]]
+    articles_of_association: NotRequired[List[str]]
 
 
 class CreateSubAccountParamsExpectedActivity(TypedDict, total=False):
@@ -144,19 +181,58 @@ class CreateSubAccountParamsTosAcceptance(TypedDict, total=False):
     user_agent: Required[str]
 
 
-class CreateSubAccountParams(TypedDict, total=False):
+class _CreateSubAccountParamsCommon(TypedDict, total=False):
     business_type: Required[Literal["BANKING", "ACQUIRING", "ISSUING"]]
-    entity_type: Required[Literal["COMPANY", "INDIVIDUAL"]]
     nickname: NotRequired[str]
-    # 1 = inherit from master account, -1 = do not inherit.
-    inherit: NotRequired[Literal[1, -1]]
     company_info: NotRequired[CreateSubAccountParamsCompanyInfo]
     company_address: NotRequired[CreateSubAccountParamsCompanyAddress]
     individual_info: NotRequired[CreateSubAccountParamsIndividualInfo]
     identity_verification: NotRequired[CreateSubAccountParamsIdentityVerification]
-    ownership_details: NotRequired[CreateSubAccountParamsOwnershipDetails]
-    business_details: NotRequired[CreateSubAccountParamsBusinessDetails]
     expected_activity: NotRequired[CreateSubAccountParamsExpectedActivity]
     proof_documents: NotRequired[CreateSubAccountParamsProofDocuments]
     additional_documents: NotRequired[CreateSubAccountParamsAdditionalDocuments]
     tos_acceptance: NotRequired[CreateSubAccountParamsTosAcceptance]
+
+
+class CreateSubAccountParamsCompanyNoInheritance(
+    _CreateSubAccountParamsCommon, total=False
+):
+    entity_type: Required[Literal["COMPANY"]]
+    inherit: Required[Literal[-1]]
+    ownership_details: Required[CreateSubAccountParamsCompanyOwnershipDetails]
+    business_details: Required[CreateSubAccountParamsBusinessDetails]
+
+
+class CreateSubAccountParamsCompanyInherited(
+    _CreateSubAccountParamsCommon, total=False
+):
+    entity_type: Required[Literal["COMPANY"]]
+    inherit: Required[Literal[1]]
+    ownership_details: NotRequired[CreateSubAccountParamsOwnershipDetails]
+    business_details: NotRequired[CreateSubAccountParamsOptionalBusinessDetails]
+
+
+class CreateSubAccountParamsCompanyDefault(
+    _CreateSubAccountParamsCommon, total=False
+):
+    """Non-inherited COMPANY request that leaves ``inherit`` unspecified."""
+
+    entity_type: Required[Literal["COMPANY"]]
+    inherit: NotRequired[Never]
+    ownership_details: Required[CreateSubAccountParamsCompanyOwnershipDetails]
+    business_details: Required[CreateSubAccountParamsBusinessDetails]
+
+
+class CreateSubAccountParamsIndividual(_CreateSubAccountParamsCommon, total=False):
+    entity_type: Required[Literal["INDIVIDUAL"]]
+    inherit: NotRequired[Literal[1, -1]]
+    ownership_details: NotRequired[CreateSubAccountParamsOwnershipDetails]
+    business_details: NotRequired[CreateSubAccountParamsOptionalBusinessDetails]
+
+
+CreateSubAccountParams: TypeAlias = Union[
+    CreateSubAccountParamsCompanyNoInheritance,
+    CreateSubAccountParamsCompanyInherited,
+    CreateSubAccountParamsCompanyDefault,
+    CreateSubAccountParamsIndividual,
+]

@@ -7,7 +7,15 @@ from typing_extensions import NotRequired, Required, get_type_hints
 
 from uqpay.types.connect import CreateSubAccountParams
 from uqpay.types.connect._create_sub_account_params import (
+    CompanyAccountPurpose,
+    CreateSubAccountParamsBusinessDetails,
+    CreateSubAccountParamsCompanyInherited,
+    CreateSubAccountParamsCompanyDefault,
+    CreateSubAccountParamsCompanyNoInheritance,
+    CreateSubAccountParamsCompanyOwnershipDetails,
+    CreateSubAccountParamsIndividual,
     CreateSubAccountParamsIndividualInfo,
+    CreateSubAccountParamsOptionalBusinessDetails,
     CreateSubAccountParamsRepresentative,
 )
 
@@ -114,12 +122,71 @@ def test_individual_info_employment_status_literal():
 
 
 def test_sub_account_params_exposes_individual_info():
-    hints = _hints(CreateSubAccountParams)
-    assert "individual_info" in hints
+    variants = typing.get_args(CreateSubAccountParams)
+    assert CreateSubAccountParamsIndividual in variants
+    for variant in variants:
+        assert "individual_info" in _hints(variant)
 
 
-def test_company_representative_date_of_birth_is_optional_string():
+def test_company_without_inheritance_requires_v3_sections():
+    for variant in (
+        CreateSubAccountParamsCompanyNoInheritance,
+        CreateSubAccountParamsCompanyDefault,
+    ):
+        hints = _hints(variant)
+        assert _is_required(hints["ownership_details"])
+        assert _is_required(hints["business_details"])
+
+    ownership_hints = _hints(CreateSubAccountParamsCompanyOwnershipDetails)
+    assert _is_required(ownership_hints["representatives"])
+
+
+def test_inherited_company_keeps_v3_sections_optional():
+    hints = _hints(CreateSubAccountParamsCompanyInherited)
+    assert _is_optional(hints["ownership_details"])
+    assert _is_optional(hints["business_details"])
+
+    business_hints = _hints(CreateSubAccountParamsOptionalBusinessDetails)
+    for field in (
+        "account_purpose",
+        "banking_currencies",
+        "banking_countries",
+        "articles_of_association",
+    ):
+        assert _is_optional(business_hints[field])
+
+
+def test_company_representative_date_of_birth_is_required_string():
     hints = _hints(CreateSubAccountParamsRepresentative)
     date_of_birth = hints["date_of_birth"]
-    assert _is_optional(date_of_birth)
+    assert _is_required(date_of_birth)
     assert te.get_args(date_of_birth)[0] is str
+
+
+def test_company_representative_v3_required_fields():
+    hints = _hints(CreateSubAccountParamsRepresentative)
+    for field in ("email_address", "ownership_percentage"):
+        assert _is_required(hints[field]), f"representative field must be required: {field}"
+    assert te.get_args(hints["ownership_percentage"])[0] is str
+
+
+def test_company_business_details_v3_required_fields_and_purposes():
+    hints = _hints(CreateSubAccountParamsBusinessDetails)
+    for field in (
+        "account_purpose",
+        "banking_currencies",
+        "banking_countries",
+        "articles_of_association",
+    ):
+        assert _is_required(hints[field]), f"business_details field must be required: {field}"
+
+    assert set(typing.get_args(CompanyAccountPurpose)) == {
+        "PAYMENT_COLLECTION",
+        "PAYOUT_DISBURSEMENT",
+        "MULTI_CURRENCY_BANKING",
+        "CARD_ISSUING",
+        "CRYPTO_RAMP",
+        "GLOBAL_TRANSFER",
+        "TREASURY_FX",
+        "OTHERS",
+    }

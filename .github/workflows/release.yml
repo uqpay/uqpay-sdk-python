@@ -48,6 +48,11 @@ jobs:
       - name: Build distributions
         run: hatch build
 
+      - name: Verify wheel typing for installed consumers
+        run: |
+          WHEEL=$(find dist -maxdepth 1 -name '*.whl' -print -quit)
+          python check_wheel_typing.py "$WHEEL"
+
       - name: Verify artifact version
         if: startsWith(github.ref, 'refs/tags/v')
         run: |
