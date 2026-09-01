@@ -14,6 +14,10 @@ with the contract that takes effect in Production on 2026-09-17.
 
 ### Breaking
 
+- `CreateSubAccountParams` is now a discriminated union. For
+  `entity_type="COMPANY"` with `inherit=-1` or omitted `inherit`, static type
+  checkers require both `ownership_details.representatives` and
+  `business_details`; only `inherit=1` remains exempt.
 - For `entity_type=COMPANY` with `inherit=-1`, representatives now require
   `email_address`, `date_of_birth`, and string-valued `ownership_percentage`;
   send `"0"` when a representative has no ownership.
@@ -25,6 +29,11 @@ with the contract that takes effect in Production on 2026-09-17.
 
 See the [Account Center Changelog](https://developers.uqpay.com/changelog) for
 the rollout timeline and migration details.
+
+### Fixed
+
+- Added the PEP 561 `py.typed` marker so mypy and other type checkers consume
+  UQPAY's inline annotations from the installed wheel.
 
 ### Migration
 

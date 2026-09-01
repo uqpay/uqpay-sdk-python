@@ -9,7 +9,13 @@ from uqpay.types.connect import CreateSubAccountParams
 from uqpay.types.connect._create_sub_account_params import (
     CompanyAccountPurpose,
     CreateSubAccountParamsBusinessDetails,
+    CreateSubAccountParamsCompanyInherited,
+    CreateSubAccountParamsCompanyDefault,
+    CreateSubAccountParamsCompanyNoInheritance,
+    CreateSubAccountParamsCompanyOwnershipDetails,
+    CreateSubAccountParamsIndividual,
     CreateSubAccountParamsIndividualInfo,
+    CreateSubAccountParamsOptionalBusinessDetails,
     CreateSubAccountParamsRepresentative,
 )
 
@@ -116,8 +122,38 @@ def test_individual_info_employment_status_literal():
 
 
 def test_sub_account_params_exposes_individual_info():
-    hints = _hints(CreateSubAccountParams)
-    assert "individual_info" in hints
+    variants = typing.get_args(CreateSubAccountParams)
+    assert CreateSubAccountParamsIndividual in variants
+    for variant in variants:
+        assert "individual_info" in _hints(variant)
+
+
+def test_company_without_inheritance_requires_v3_sections():
+    for variant in (
+        CreateSubAccountParamsCompanyNoInheritance,
+        CreateSubAccountParamsCompanyDefault,
+    ):
+        hints = _hints(variant)
+        assert _is_required(hints["ownership_details"])
+        assert _is_required(hints["business_details"])
+
+    ownership_hints = _hints(CreateSubAccountParamsCompanyOwnershipDetails)
+    assert _is_required(ownership_hints["representatives"])
+
+
+def test_inherited_company_keeps_v3_sections_optional():
+    hints = _hints(CreateSubAccountParamsCompanyInherited)
+    assert _is_optional(hints["ownership_details"])
+    assert _is_optional(hints["business_details"])
+
+    business_hints = _hints(CreateSubAccountParamsOptionalBusinessDetails)
+    for field in (
+        "account_purpose",
+        "banking_currencies",
+        "banking_countries",
+        "articles_of_association",
+    ):
+        assert _is_optional(business_hints[field])
 
 
 def test_company_representative_date_of_birth_is_required_string():

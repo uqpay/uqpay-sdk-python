@@ -21,6 +21,7 @@ dev = [
     "pytest>=8.0",
     "python-dotenv>=1.0",
     "hatch",
+    "mypy>=1.11",
 ]
 
 [tool.hatch.build.targets.wheel]
