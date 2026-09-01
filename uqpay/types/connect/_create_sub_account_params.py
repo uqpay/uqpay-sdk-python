@@ -3,6 +3,18 @@ from typing import List
 from typing_extensions import Literal, NotRequired, Required, TypedDict
 
 
+CompanyAccountPurpose = Literal[
+    "PAYMENT_COLLECTION",
+    "PAYOUT_DISBURSEMENT",
+    "MULTI_CURRENCY_BANKING",
+    "CARD_ISSUING",
+    "CRYPTO_RAMP",
+    "GLOBAL_TRANSFER",
+    "TREASURY_FX",
+    "OTHERS",
+]
+
+
 class CreateSubAccountParamsCompanyInfo(TypedDict, total=False):
     legal_business_name: Required[str]
     legal_business_name_english: Required[str]
@@ -79,10 +91,11 @@ class CreateSubAccountParamsRepresentative(TypedDict, total=False):
     email_address: Required[str]
     is_applicant: Required[str]
     job_title: Required[str]
+    ownership_percentage: Required[str]
     nationality: Required[str]
     phone_number: Required[str]
-    # Optional for COMPANY representatives. When provided, use YYYY-MM-DD.
-    date_of_birth: NotRequired[str]
+    # Required for COMPANY representatives. Use YYYY-MM-DD.
+    date_of_birth: Required[str]
     country_or_territory: Required[str]
     street_address: Required[str]
     apartment_suite_or_floor: NotRequired[str]
@@ -111,9 +124,10 @@ class CreateSubAccountParamsBusinessDetails(TypedDict, total=False):
     number_of_employee: NotRequired[str]
     website_url: NotRequired[str]
     company_description: NotRequired[str]
-    account_purpose: NotRequired[List[str]]
-    banking_currencies: NotRequired[List[str]]
-    banking_countries: NotRequired[List[str]]
+    account_purpose: Required[List[CompanyAccountPurpose]]
+    banking_currencies: Required[List[str]]
+    banking_countries: Required[List[str]]
+    articles_of_association: Required[List[str]]
 
 
 class CreateSubAccountParamsExpectedActivity(TypedDict, total=False):
