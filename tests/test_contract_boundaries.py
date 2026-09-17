@@ -35,9 +35,25 @@ def test_kyc_boundaries_paging_and_proxy_headers():
             issuing.cards.list({"page_size": size, "page_number": 1})
             assert captured[-1].url.params["page_size"] == str(size)
         payment = PaymentResource(http, "client")
-        payment.payment_intents.retrieve("pi-1", {"on_behalf_of": "sub-account"})
-        assert captured[-1].headers["x-on-behalf-of"] == "sub-account"
-        assert "x-idempotency-key" not in captured[-1].headers
+        # D189-D196, with and without per-request delegation.
+        routes = [
+            ("/v2/payment/balances", lambda o: payment.balances.list({}, o)),
+            ("/v2/payment/balances/USD", lambda o: payment.balances.retrieve('USD', o)),
+            ("/v2/payment/bankaccount", lambda o: payment.bank_accounts.list({}, o)),
+            ("/v2/payment/bankaccount/ba-1", lambda o: payment.bank_accounts.retrieve('ba-1', o)),
+            ("/v2/payment/payout", lambda o: payment.payouts.list({}, o)),
+            ("/v2/payment/payout/po-1", lambda o: payment.payouts.retrieve('po-1', o)),
+            ("/v2/payment/settlements", lambda o: payment.settlements.list({}, o)),
+            ("/v2/payment_intents/pi-1", lambda o: payment.payment_intents.retrieve('pi-1', o)),
+        ]
+        for path, call in routes:
+            for account in ["sub-account", ""]:
+                call({"on_behalf_of": account} if account else {})
+                request = captured[-1]
+                assert request.method == "GET" and request.url.path == path
+                assert request.headers["x-client-id"] == "client"
+                assert request.headers.get("x-on-behalf-of", "") == account
+                assert "x-idempotency-key" not in request.headers
         key = "550e8400-e29b-41d4-a716-446655440000"
         payment.payment_intents.create({"amount": "1.00", "currency": "USD"}, {"idempotency_key": key})
         assert captured[-1].headers["x-idempotency-key"] == key
