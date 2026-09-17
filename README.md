@@ -392,6 +392,8 @@ client.simulator.issuing.reverse({
 
 # Simulate a deposit
 client.simulator.deposits.simulate({
+    "account_id": "account-id",
+    "sender_swift_code": "WELGBE22",
     "currency": "SGD",
     "amount": 500.0,
 })
@@ -539,3 +541,7 @@ SKIP_INTEGRATION_TESTS=true pytest tests/ -v
 ## License
 
 This project is licensed under the MIT License — see the [LICENSE](LICENSE) file for details.
+
+## Contract migration notes
+
+See [PIN, RFI, deposit simulation and settlement contracts](CONTRACT_ALIGNMENT.md) for request changes and response interpretation.

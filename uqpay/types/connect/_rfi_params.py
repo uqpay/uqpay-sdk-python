@@ -14,8 +14,9 @@ class ListRfisParams(TypedDict):
 
 class RfiAnswerItem(TypedDict):
     key: str
-    type: Literal["ATTACHMENT"]
-    attachments: list[str]
+    type: Literal["ATTACHMENT", "TEXT"]
+    text: NotRequired[str]  # Non-empty for TEXT answers.
+    attachments: NotRequired[list[str]]  # Uploaded file IDs for ATTACHMENT answers.
 
 
 class AnswerRfiParams(TypedDict):

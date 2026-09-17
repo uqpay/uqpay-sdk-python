@@ -84,6 +84,7 @@ class CardsResource(BaseResource):
         params: ResetPinParams,
         request_options: RequestOptions | None = None,
     ) -> dict[str, Any]:
+        """Manage a PIN; omitted type means SET. SUCCESS is acceptance, not completion."""
         return self._post("/v1/issuing/cards/pin", params, request_options)
 
     def retrieve_order(self, id: str, request_options: RequestOptions | None = None) -> dict[str, Any]:
