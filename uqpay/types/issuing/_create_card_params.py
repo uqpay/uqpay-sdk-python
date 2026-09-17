@@ -47,6 +47,11 @@ class CreateCardParamsCardholderRequiredFieldsKycVerification(TypedDict, total=F
 
 
 class CreateCardParamsCardholderRequiredFields(TypedDict, total=False):
+    email: NotRequired[str]
+    first_name: NotRequired[str]
+    last_name: NotRequired[str]
+    country_code: NotRequired[str]
+
     gender: NotRequired[Literal["MALE", "FEMALE"]]
     nationality: NotRequired[str]
     phone_number: NotRequired[str]

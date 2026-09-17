@@ -61,7 +61,7 @@ from uqpay.resources.banking import BankingResource
 
 @pytest.mark.parametrize("method", "card card_present wechatpay alipay alipaycn alipayhk paynow grabpay applepay googlepay unionpay crypto tng truemoney gcash dana kakaopay tosspay naverpay mpay kplus boost rabbitlinepay kaspi hipay shopeepay".split())
 def test_signed_webhook_fields(method):
-    event = {"version": "V1.6.0", "event_id": "evt-test", "event_name": "ACQUIRING", "event_type": "acquiring.payment_intent.succeeded", "data": {"amount": "12345678901234567890.12345678", "complete_time": None, "metadata": None, "payment_method": {"type": method, method: {"flow": None, "os_type": "", "static_qrcode": "qr"}}, "wallet_type": "FUTURE_WALLET"}}
+    event = {"version": "V1.6.0", "event_id": "evt-test", "event_name": "ACQUIRING", "event_type": "acquiring.payment_intent.succeeded", "data": {"amount": "12345678901234567890.12345678", "complete_time": None, "metadata": None, "payment_method": {"type": method, method: {"flow": None, "os_type": "", "static_qrcode": "qr", "issuer_country_code": "SG"}}, "wallet_type": "FUTURE_WALLET"}}
     raw = json.dumps(event).encode()
     timestamp = str(int(time.time() * 1000))
     signature = hmac.new(b"offline-secret", raw + timestamp.encode(), hashlib.sha512).hexdigest()

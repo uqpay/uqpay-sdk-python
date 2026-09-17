@@ -16,3 +16,6 @@ country_check: CheckBeneficiaryParams = {"entity_type": "COMPANY", "payment_meth
 
 from uqpay.types.issuing import UpdateCardParams
 art_update: UpdateCardParams = {"card_art_id": "art-1", "name_on_card": "Test"}
+
+from uqpay.types.issuing._create_card_params import CreateCardParamsCardholderRequiredFields
+inline_holder: CreateCardParamsCardholderRequiredFields = {"email": "test@example.test", "first_name": "Test", "last_name": "User", "country_code": "SG"}

@@ -1,0 +1,75 @@
+import json
+from unittest.mock import Mock
+import httpx
+from uqpay.http import HttpClient
+from uqpay.resources.issuing import IssuingResource
+from uqpay.resources.payment import PaymentResource
+from uqpay.resources.banking import BankingResource
+from uqpay.resources.connect import ConnectResource
+
+
+def test_kyc_boundaries_paging_and_proxy_headers():
+    captured = []
+    def handler(request):
+        captured.append(request)
+        return httpx.Response(200, json={})
+    token = Mock(account_context={})
+    token.get_token.return_value = "offline-token"
+    http = HttpClient("https://api-sandbox.example.test", token, "client")
+    http._http.close()
+    http._http = httpx.Client(transport=httpx.MockTransport(handler))
+    try:
+        issuing = IssuingResource(http, "https://api-sandbox.example.test")
+        for provider in ["SUMSUB", "MYINFO", "JUMIO", "DIDIT", "SHUFTI", "REGTANK"]:
+            for length in [9, 10, 64, 65]:
+                for dob in ["2009-09-17", "2008-09-17", "1947-09-17", "1946-09-17"]:
+                    fields = {"email": "test@example.test", "first_name": "Test", "last_name": "User", "country_code": "SG", "phone_number": "81234567", "date_of_birth": dob, "kyc_verification": {"method": "THIRD_PARTY", "kyc_proof": {"provider": provider, "reference_id": "r" * length}}}
+                    issuing.cardholders.create(fields)
+                    assert json.loads(captured[-1].content) == fields
+                    update = {"date_of_birth": dob, "kyc_verification": fields["kyc_verification"]}
+                    issuing.cardholders.update("holder-1", update)
+                    assert json.loads(captured[-1].content) == update
+                    issuing.cards.create({"cardholder_id": "holder-1", "card_currency": "SGD", "card_product_id": "product-1", "cardholder_required_fields": fields})
+                    assert json.loads(captured[-1].content)["cardholder_required_fields"] == fields
+        for size in [1, 10, 100]:
+            issuing.cards.list({"page_size": size, "page_number": 1})
+            assert captured[-1].url.params["page_size"] == str(size)
+        payment = PaymentResource(http, "client")
+        payment.payment_intents.retrieve("pi-1", {"on_behalf_of": "sub-account"})
+        assert captured[-1].headers["x-on-behalf-of"] == "sub-account"
+        assert "x-idempotency-key" not in captured[-1].headers
+        key = "550e8400-e29b-41d4-a716-446655440000"
+        payment.payment_intents.create({"amount": "1.00", "currency": "USD"}, {"idempotency_key": key})
+        assert captured[-1].headers["x-idempotency-key"] == key
+    finally:
+        http.close()
+
+
+def test_response_shapes_are_not_coerced():
+    payloads = [
+        {"entity_type": "COMPANY", "business_details": {"legal_entity_name": "Example"}},
+        {"entity_type": "INDIVIDUAL", "person_details": {"first_name": "Test"}, "representatives": [{"other_documents": None}]},
+        {"currency": "USD", "available_balance": "-12345678901234567890.12", "prepaid_balance": "0.00"},
+        {"payer": {"payer_id": "0", "identification_type": ""}, "beneficiary": {"address": {"country": "SG", "city": "", "state": ""}}},
+        {"metadata": None, "next_action": None, "latest_payment_attempt": None, "complete_time": ""},
+        {"card_limit": "12345678901234567890.12345678", "metadata": '{"ref":"0001"}', "risk_controls": None},
+    ]
+    token = Mock(account_context={})
+    token.get_token.return_value = "offline"
+    current = {}
+    http = HttpClient("https://api-sandbox.example.test", token, "client")
+    http._http.close()
+    http._http = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=current)))
+    try:
+        operations = [
+            lambda: ConnectResource(http).accounts.retrieve("account-1"),
+            lambda: ConnectResource(http).accounts.retrieve("account-1"),
+            lambda: BankingResource(http).balances.retrieve("USD"),
+            lambda: BankingResource(http).payouts.retrieve("payout-1"),
+            lambda: PaymentResource(http, "client").payment_intents.retrieve("pi-1"),
+            lambda: IssuingResource(http, "https://api-sandbox.example.test").cards.retrieve("card-1"),
+        ]
+        for current, call in zip(payloads, operations):
+            assert call() == current
+    finally:
+        http.close()
