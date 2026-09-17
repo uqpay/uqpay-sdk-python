@@ -1,3 +1,4 @@
+from pathlib import Path
 import json
 from unittest.mock import Mock
 import httpx
@@ -91,6 +92,22 @@ def test_response_shapes_are_not_coerced():
         ]
         for current, call in zip(payloads, operations):
             assert call() == current
+        # RFI list/detail and PIN order responses through the real HTTP client.
+        fixtures = json.loads((Path(__file__).parent / 'fixtures/rfi-orders.json').read_text())
+        rfis = ConnectResource(http).rfis
+        for rfi in fixtures['rfis']:
+            current = rfi
+            assert rfis.retrieve(rfi['rfi_id']) == rfi
+            assert requests[-1].method == 'GET'
+            assert requests[-1].url.path == '/v1/rfis/' + rfi['rfi_id']
+            current = {'data': [rfi], 'total_pages': 3, 'total_items': 21}
+            assert rfis.list({'page_size': 10, 'page_number': 2, 'status': 'ACTION_REQUIRED'}) == current
+            assert requests[-1].method == 'GET' and requests[-1].url.path == '/v1/rfis'
+            assert dict(requests[-1].url.params) == {'page_size': '10', 'page_number': '2', 'status': 'ACTION_REQUIRED'}
+        for current in fixtures['orders']:
+            assert IssuingResource(http, 'https://api-sandbox.example.test').cards.retrieve_order(current['card_order_id']) == current
+            assert requests[-1].method == 'GET'
+            assert requests[-1].url.path == '/v1/issuing/cards/' + current['card_order_id'] + '/order'
         # AQ-RESPONSE: each operation preserves absent/null/empty values.
         payment = PaymentResource(http, "client")
         rest_cases = [
