@@ -91,6 +91,17 @@ def test_response_shapes_are_not_coerced():
         ]
         for current, call in zip(payloads, operations):
             assert call() == current
+        # AQ-RESPONSE: each operation preserves absent/null/empty values.
+        payment = PaymentResource(http, "client")
+        rest_cases = [
+            (lambda: payment.attempts.retrieve("pa-1"), [{}, {"complete_time":"", "advice_code":"", "authentication_data":{"cvv_result":""}}, {"complete_time":"2026-09-17T00:00:00Z", "advice_code":"01", "authentication_data":{"cvv_result":"M"}}]),
+            (lambda: payment.refunds.retrieve("re-1"), [{}, {"metadata":None}, {"metadata":{}}, {"metadata":{"ref":"0001"}}]),
+            (lambda: payment.payouts.retrieve("po-1"), [{}, {"completed_time":""}, {"completed_time":"2026-09-17T00:00:00Z"}]),
+            (lambda: payment.payment_intents.retrieve("pi-1"), [{}, {"metadata":None,"next_action":None,"latest_payment_attempt":None}, {"metadata":{"ref":"0001"},"next_action":{"redirect_to_url":{"return_url":""}},"latest_payment_attempt":{"advice_code":""}}]),
+        ]
+        for call, fixtures in rest_cases:
+            for current in fixtures:
+                assert call() == current
         # D122-D129: every field gets each distinct value, through both routes.
         fields = ["available_balance", "frozen_balance", "margin_balance", "prepaid_balance"]
         amounts = ["0.00", "1.23", "-0.01", "12345678901234567890.12", "-12345678901234567890.12", "0.12345678901234567890"]

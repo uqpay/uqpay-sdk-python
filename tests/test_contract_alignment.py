@@ -74,3 +74,31 @@ def test_iban_only_check_wire():
     banking.beneficiaries.check(params)
     assert http.calls[-1]["body"] == params
     assert http.calls[-1]["path"] == "/v1/beneficiaries/check"
+
+
+def test_acquiring_event_null_empty_missing_and_signature_bytes():
+    # WH-AQ: all event families, not just payment_intent.
+    cases = [
+        ("payment_intent.succeeded", ["complete_time", "cancel_time"], ["metadata", "next_action", "payment_method"]),
+        ("payment_attempt.succeeded", ["complete_time", "cancel_time"], []),
+        ("refund.succeeded", ["complete_time"], ["metadata"]),
+        ("payout.succeeded", ["complete_time"], []),
+        ("chargeback.alert.created", ["appeal_time", "response_time"], []),
+    ]
+    for kind, times, objects in cases:
+        for mode in ["missing", "null", "empty", "populated"]:
+            data = {}
+            if mode != "missing":
+                for field in times:
+                    data[field] = None if mode == "null" else "" if mode == "empty" else "2026-09-17T00:00:00Z"
+                for field in objects:
+                    data[field] = None if mode == "null" else {} if mode == "empty" else {"ref": "0001"}
+            event = {"event_type": "acquiring." + kind, "data": data}
+            raw = json.dumps(event).encode()
+            timestamp = str(int(time.time() * 1000))
+            signature = hmac.new(b"offline-secret", raw + timestamp.encode(), hashlib.sha512).hexdigest()
+            verifier = WebhookVerifier("offline-secret")
+            headers = {"x-wk-signature": signature, "x-wk-timestamp": timestamp}
+            assert verifier.construct_event(raw, headers) == event
+            with pytest.raises(Exception):
+                verifier.construct_event(raw + b" ", headers)
