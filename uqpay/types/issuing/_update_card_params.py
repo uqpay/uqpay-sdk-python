@@ -18,6 +18,9 @@ class UpdateCardParamsMetadata(TypedDict, total=False):
 
 
 class UpdateCardParams(TypedDict, total=False):
+    # Card and processing status must be ACTIVE; art changes are asynchronous.
+    card_art_id: NotRequired[str]
+    name_on_card: NotRequired[str]
     card_limit: NotRequired[float]
     no_pin_payment_amount: NotRequired[float]
     spending_controls: NotRequired[list[UpdateCardParamsSpendingControls]]
