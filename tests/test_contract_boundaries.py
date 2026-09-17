@@ -75,7 +75,11 @@ def test_response_shapes_are_not_coerced():
     current = {}
     http = HttpClient("https://api-sandbox.example.test", token, "client")
     http._http.close()
-    http._http = httpx.Client(transport=httpx.MockTransport(lambda _: httpx.Response(200, json=current)))
+    requests = []
+    def respond(request):
+        requests.append(request)
+        return httpx.Response(200, json=current)
+    http._http = httpx.Client(transport=httpx.MockTransport(respond))
     try:
         operations = [
             lambda: ConnectResource(http).accounts.retrieve("account-1"),
@@ -87,5 +91,19 @@ def test_response_shapes_are_not_coerced():
         ]
         for current, call in zip(payloads, operations):
             assert call() == current
+        # D122-D129: every field gets each distinct value, through both routes.
+        fields = ["available_balance", "frozen_balance", "margin_balance", "prepaid_balance"]
+        amounts = ["0.00", "1.23", "-0.01", "12345678901234567890.12", "-12345678901234567890.12", "0.12345678901234567890"]
+        banking = BankingResource(http)
+        for i in range(len(amounts)):
+            balance = {"currency": "USD", **{field: amounts[(i+j) % len(amounts)] for j, field in enumerate(fields)}}
+            current = balance
+            assert banking.balances.retrieve("USD") == balance
+            assert requests[-1].method == "GET" and requests[-1].url.path == "/v1/balances/USD"
+            current = {"data": [balance], "total_pages": 1, "total_items": 1}
+            assert banking.balances.list({"page_size": 10, "page_number": 1}) == current
+            assert requests[-1].method == "GET" and requests[-1].url.path == "/v1/balances"
+            assert requests[-1].url.params["page_size"] == "10"
+
     finally:
         http.close()
