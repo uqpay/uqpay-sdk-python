@@ -92,6 +92,17 @@ def test_response_shapes_are_not_coerced():
         ]
         for current, call in zip(payloads, operations):
             assert call() == current
+        # D044/D094: detail-only status; missing detail is legacy robustness.
+        transactions = IssuingResource(http, 'https://api-sandbox.example.test').transactions
+        for status in ['UNKNOWN', 'UNSETTLED', 'SETTLED', 'NOT_APPLICABLE', None]:
+            current = {'transaction_id': 'tx-1'}
+            if status is not None:
+                current['settlement_status'] = status
+            assert transactions.retrieve('tx-1') == current
+            assert requests[-1].method == 'GET' and requests[-1].url.path == '/v1/issuing/transactions/tx-1'
+        current = {'data': [{'transaction_id': 'tx-1'}], 'total_pages': 1, 'total_items': 1}
+        assert transactions.list({'page_size': 10, 'page_number': 1}) == current
+        assert requests[-1].method == 'GET' and requests[-1].url.path == '/v1/issuing/transactions'
         # RFI list/detail and PIN order responses through the real HTTP client.
         fixtures = json.loads((Path(__file__).parent / 'fixtures/rfi-orders.json').read_text())
         rfis = ConnectResource(http).rfis
