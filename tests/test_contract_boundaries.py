@@ -106,6 +106,19 @@ def test_response_shapes_are_not_coerced():
             current = fixture['body']
             assert calls[fixture['operation']]() == current
             assert requests[-1].method == 'GET' and requests[-1].url.path == fixture['path']
+        calls = {
+            'cards.list': lambda: issuing.cards.list({'page_size': 10, 'page_number': 1}),
+            'cards.get': lambda: issuing.cards.retrieve('card-1'),
+            'cardholders.list': lambda: issuing.cardholders.list({'page_size': 10, 'page_number': 1}),
+            'cardholders.get': lambda: issuing.cardholders.retrieve('holder-1'),
+            'products.list': lambda: issuing.products.list({'page_size': 10, 'page_number': 1}),
+            'cards.status': lambda: issuing.cards.update_status('card-1', {'card_status': 'FROZEN'}),
+        }
+        for fixture in json.loads((Path(__file__).parent / 'fixtures/issuing-responses.json').read_text()):
+            current = fixture['body']
+            assert calls[fixture['operation']]() == current, (fixture['operation'], fixture['name'])
+            assert requests[-1].url.path == fixture['path']
+            assert requests[-1].method == ('POST' if fixture['operation'] == 'cards.status' else 'GET')
         # D044/D094: detail-only status; missing detail is legacy robustness.
         transactions = IssuingResource(http, 'https://api-sandbox.example.test').transactions
         for status in ['UNKNOWN', 'UNSETTLED', 'SETTLED', 'NOT_APPLICABLE', None]:
