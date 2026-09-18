@@ -8,7 +8,10 @@ class CheckBeneficiaryParamsAdditionalInfo(TypedDict, total=False):
 
 class CheckBeneficiaryParams(TypedDict, total=False):
     entity_type: Required[Literal["COMPANY", "INDIVIDUAL"]]
-    account_number: Required[str]
+    # At least one non-empty account_number or iban; account_number takes precedence.
+    account_number: NotRequired[str]
+    # Conditional on payment method and currency.
+    bank_country_code: NotRequired[str]
     payment_method: Required[Literal["LOCAL", "SWIFT"]]
     currency: Required[str]
     first_name: NotRequired[str]

@@ -3,6 +3,7 @@ from typing_extensions import NotRequired, Required, TypedDict
 
 
 class SimulateDepositCreationParams(TypedDict, total=False):
+    account_id: Required[str]
     amount: Required[float]
     currency: Required[str]
     receiver_account_number: NotRequired[str]
