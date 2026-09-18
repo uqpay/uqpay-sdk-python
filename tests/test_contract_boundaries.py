@@ -123,6 +123,23 @@ def test_response_shapes_are_not_coerced():
             current = fixture['body']
             assert BankingResource(http).deposits.retrieve('deposit-1') == current, fixture['name']
             assert requests[-1].method == 'GET' and requests[-1].url.path == '/v1/deposit/deposit-1'
+        from uqpay.resources.simulator import SimulatorResource
+        banking = BankingResource(http)
+        payment = PaymentResource(http, 'client')
+        simulator = SimulatorResource(http, 'https://api-sandbox.example.test')
+        for fixture in json.loads((Path(__file__).parent / 'fixtures/remaining-responses.json').read_text()):
+            current = fixture['body']
+            calls = {
+                'payout': lambda: banking.payouts.retrieve('po-1'), 'transaction': lambda: issuing.transactions.retrieve('tx-1'),
+                'authorization': lambda: simulator.issuing.authorize(fixture['request']),
+                'bank.get': lambda: payment.bank_accounts.retrieve('ba-1'), 'bank.list': lambda: payment.bank_accounts.list({'page_size':10,'page_number':1}),
+                'bank.create': lambda: payment.bank_accounts.create(fixture['request']),
+                'intent.get': lambda: payment.payment_intents.retrieve('pi-1'), 'intent.create': lambda: payment.payment_intents.create(fixture['request']),
+                'intent.confirm': lambda: payment.payment_intents.confirm('pi-1',fixture['request']),
+                'attempt': lambda: payment.attempts.retrieve('pa-1'),
+            }
+            assert calls[fixture['operation']]() == current, (fixture['operation'],fixture['name'])
+            assert requests[-1].method == fixture['method'] and requests[-1].url.path == fixture['path']
         beneficiaries = BankingResource(http).beneficiaries
         for fixture in json.loads((Path(__file__).parent / 'fixtures/beneficiary-contract.json').read_text()):
             current = fixture['body']
