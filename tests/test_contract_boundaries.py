@@ -119,6 +119,10 @@ def test_response_shapes_are_not_coerced():
             assert calls[fixture['operation']]() == current, (fixture['operation'], fixture['name'])
             assert requests[-1].url.path == fixture['path']
             assert requests[-1].method == ('POST' if fixture['operation'] == 'cards.status' else 'GET')
+        for fixture in json.loads((Path(__file__).parent / 'fixtures/deposit-contract.json').read_text()):
+            current = fixture['body']
+            assert BankingResource(http).deposits.retrieve('deposit-1') == current, fixture['name']
+            assert requests[-1].method == 'GET' and requests[-1].url.path == '/v1/deposit/deposit-1'
         beneficiaries = BankingResource(http).beneficiaries
         for fixture in json.loads((Path(__file__).parent / 'fixtures/beneficiary-contract.json').read_text()):
             current = fixture['body']
