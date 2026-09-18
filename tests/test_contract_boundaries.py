@@ -119,6 +119,17 @@ def test_response_shapes_are_not_coerced():
             assert calls[fixture['operation']]() == current, (fixture['operation'], fixture['name'])
             assert requests[-1].url.path == fixture['path']
             assert requests[-1].method == ('POST' if fixture['operation'] == 'cards.status' else 'GET')
+        beneficiaries = BankingResource(http).beneficiaries
+        for fixture in json.loads((Path(__file__).parent / 'fixtures/beneficiary-contract.json').read_text()):
+            current = fixture['body']
+            calls = {'check': lambda: beneficiaries.check(fixture['request']),
+                     'list': lambda: beneficiaries.list({'page_size': 10, 'page_number': 1}),
+                     'get': lambda: beneficiaries.retrieve('beneficiary-1')}
+            assert calls[fixture['operation']]() == current, fixture['name']
+            assert requests[-1].url.path == fixture['path']
+            assert requests[-1].method == ('POST' if fixture['operation'] == 'check' else 'GET')
+            if fixture['operation'] == 'check':
+                assert json.loads(requests[-1].content) == fixture['request']
         # D044/D094: detail-only status; missing detail is legacy robustness.
         transactions = IssuingResource(http, 'https://api-sandbox.example.test').transactions
         for status in ['UNKNOWN', 'UNSETTLED', 'SETTLED', 'NOT_APPLICABLE', None]:
