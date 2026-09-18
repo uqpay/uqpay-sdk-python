@@ -92,6 +92,20 @@ def test_response_shapes_are_not_coerced():
         ]
         for current, call in zip(payloads, operations):
             assert call() == current
+        # Frozen account summaries/details and issuing money: all fixture fields.
+        account = ConnectResource(http).accounts
+        issuing = IssuingResource(http, 'https://api-sandbox.example.test')
+        calls = {
+            'accounts.list': lambda: account.list({'page_size': 10, 'page_number': 1}),
+            'accounts.get': lambda: account.retrieve('account-1'),
+            'transactions.get': lambda: issuing.transactions.retrieve('tx-1'),
+            'transactions.list': lambda: issuing.transactions.list({'page_size': 10, 'page_number': 1}),
+            'transfers.get': lambda: issuing.transfers.retrieve('transfer-1'),
+        }
+        for fixture in json.loads((Path(__file__).parent / 'fixtures/account-money.json').read_text()):
+            current = fixture['body']
+            assert calls[fixture['operation']]() == current
+            assert requests[-1].method == 'GET' and requests[-1].url.path == fixture['path']
         # D044/D094: detail-only status; missing detail is legacy robustness.
         transactions = IssuingResource(http, 'https://api-sandbox.example.test').transactions
         for status in ['UNKNOWN', 'UNSETTLED', 'SETTLED', 'NOT_APPLICABLE', None]:
