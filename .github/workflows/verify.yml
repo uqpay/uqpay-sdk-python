@@ -1,0 +1,84 @@
+name: Verify only
+
+# Branch pushes validate before a PR exists. No tag trigger or publishing jobs.
+on:
+  push:
+    branches:
+      - 'marshall/api-delivery/**'
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      release_mode:
+        type: boolean
+        default: false
+      release_tag:
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+
+env:
+  RELEASE_TAG: ${{ inputs.release_tag }}
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ['3.11', '3.12', '3.13', '3.14']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: ${{ inputs.release_mode }}
+          ref: ${{ inputs.release_mode && inputs.release_tag || github.sha }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Verify release tag and version
+        if: inputs.release_mode
+        run: python check_release_version.py --tag "$GITHUB_REF_NAME"
+
+      - name: Verify tag commit is on main
+        if: inputs.release_mode
+        run: |
+          git fetch --no-tags origin main:refs/remotes/origin/main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main
+
+      - name: Install project and build tools
+        run: python -m pip install -e ".[dev]" twine
+
+      - name: Run full test suite
+        env:
+          SKIP_INTEGRATION_TESTS: "true"
+        run: pytest
+
+      - name: Build distributions
+        run: hatch build
+
+      - name: Verify wheel typing for installed consumers
+        run: |
+          WHEEL=$(find dist -maxdepth 1 -name '*.whl' -print -quit)
+          python check_wheel_typing.py "$WHEEL"
+
+      - name: Verify artifact version
+        if: inputs.release_mode
+        run: |
+          WHEEL=$(find dist -maxdepth 1 -name '*.whl' -print -quit)
+          python check_release_version.py --tag "$GITHUB_REF_NAME" --wheel "$WHEEL"
+
+      - name: Check distribution metadata
+        run: |
+          twine check dist/*
+
+      - uses: actions/upload-artifact@v4
+        if: matrix.python-version == '3.11' && inputs.release_mode
+        with:
+          name: python-distributions
+          path: dist/*
+          if-no-files-found: error
