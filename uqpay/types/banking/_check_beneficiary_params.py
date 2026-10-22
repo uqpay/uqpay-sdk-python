@@ -8,15 +8,16 @@ class CheckBeneficiaryParamsAdditionalInfo(TypedDict, total=False):
 
 class CheckBeneficiaryParams(TypedDict, total=False):
     entity_type: Required[Literal["COMPANY", "INDIVIDUAL"]]
-    # At least one non-empty account_number or iban; account_number takes precedence.
+    # CARD requires account_number, bank_country_code and clearing_system=MASTERCARD SEND; no expiry.
+    # For bank beneficiaries, at least one non-empty account_number or iban; account_number takes precedence.
     account_number: NotRequired[str]
     # Conditional on payment method and currency.
     bank_country_code: NotRequired[str]
-    payment_method: Required[Literal["LOCAL", "SWIFT"]]
+    payment_method: Required[Literal["LOCAL", "SWIFT", "CARD"]]
     currency: Required[str]
     first_name: NotRequired[str]
     last_name: NotRequired[str]
     company_name: NotRequired[str]
-    clearing_system: NotRequired[Literal["LOCAL", "SWIFT", "ACH", "FAST", "MEPS", "GIRO", "Fedwire", "Faster Payments", "RTGS", "FPS", "EFT", "Interac e-Transfer", "Bill Payment", "CHAPS", "Bank Transfer", "NPP", "ACH", "Fedwire", "SWIFT", "FAST", "GIRO", "RTGS", "LOCAL", "FPS", "EFT", "Interac e-Transfer", "Bill Payment", "Faster Payments", "CHAPS", "Bank Transfer", "NPP", "BPAY", "BPAY"]]
+    clearing_system: NotRequired[Literal["MASTERCARD SEND", "LOCAL", "SWIFT", "ACH", "FAST", "MEPS", "GIRO", "Fedwire", "Faster Payments", "RTGS", "FPS", "EFT", "Interac e-Transfer", "Bill Payment", "CHAPS", "Bank Transfer", "NPP", "ACH", "Fedwire", "SWIFT", "FAST", "GIRO", "RTGS", "LOCAL", "FPS", "EFT", "Interac e-Transfer", "Bill Payment", "Faster Payments", "CHAPS", "Bank Transfer", "NPP", "BPAY", "BPAY"]]
     iban: NotRequired[str]
     additional_info: NotRequired[CheckBeneficiaryParamsAdditionalInfo]

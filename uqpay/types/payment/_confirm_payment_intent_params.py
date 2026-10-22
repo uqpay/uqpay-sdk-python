@@ -34,14 +34,33 @@ class ConfirmPaymentIntentParamsPaymentMethodCard(TypedDict, total=False):
     network: Required[Literal["visa", "mastercard", "unionpay"]]
     billing: Required[ConfirmPaymentIntentParamsPaymentMethodCardBilling]
     auto_capture: NotRequired[bool]
-    authorization_type: Required[Literal["authorization", "pre_authorization"]]
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
     three_ds_action: Required[Literal["enforce_3ds", "skip_3ds"]]
     three_ds: NotRequired[ConfirmPaymentIntentParamsPaymentMethodCardThreeDs]
 
 
+class ConfirmPaymentIntentParamsPaymentMethodCardPresent(TypedDict, total=False):
+    card_number: Required[str]
+    expiry_month: Required[str]
+    expiry_year: Required[str]
+    pan_entry_mode: Required[Literal["manual_entry", "chip", "magstripe", "contactless_chip", "contactless_magstripe"]]
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
+    auto_capture: NotRequired[bool]
+    cardholder_verification_method: NotRequired[str]
+    encrypted_pin: NotRequired[str]
+    fallback: NotRequired[bool]
+    fallback_reason: NotRequired[str]
+    emv_tags: NotRequired[str]
+    track1: NotRequired[str]
+    track2: NotRequired[str]
+    terminal_info: NotRequired[dict[str, object]]
+    system_trace_audit_number: NotRequired[str]
+
+
 class ConfirmPaymentIntentParamsPaymentMethod(TypedDict, total=False):
-    type: Required[Literal["card"]]
-    card: Required[ConfirmPaymentIntentParamsPaymentMethodCard]
+    type: Required[Literal["card", "card_present"]]
+    card: NotRequired[ConfirmPaymentIntentParamsPaymentMethodCard]
+    card_present: NotRequired[ConfirmPaymentIntentParamsPaymentMethodCardPresent]
 
 
 class ConfirmPaymentIntentParamsBrowserInfoBrowser(TypedDict, total=False):
@@ -75,6 +94,7 @@ class ConfirmPaymentIntentParamsBrowserInfo(TypedDict, total=False):
 
 
 class ConfirmPaymentIntentParams(TypedDict, total=False):
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
     payment_method: NotRequired[ConfirmPaymentIntentParamsPaymentMethod]
     ip_address: NotRequired[str]
     browser_info: NotRequired[ConfirmPaymentIntentParamsBrowserInfo]

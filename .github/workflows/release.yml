@@ -45,6 +45,9 @@ jobs:
           SKIP_INTEGRATION_TESTS: "true"
         run: pytest
 
+      - name: Verify request type contracts
+        run: mypy --follow-imports=silent --warn-unused-ignores tests/typing_contract_alignment.py
+
       - name: Build distributions
         run: hatch build
 

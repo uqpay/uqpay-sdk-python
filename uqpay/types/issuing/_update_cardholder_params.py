@@ -14,11 +14,16 @@ class UpdateCardholderParamsResidentialAddress(TypedDict, total=False):
 
 
 class UpdateCardholderParamsIdentity(TypedDict, total=False):
-    type: Required[Literal["ID_CARD", "PASSPORT"]]
-    number: Required[str]
-    front_file: Required[str]
+    type: NotRequired[Literal["ID_CARD", "PASSPORT"]]
+    number: NotRequired[str]
+    front_file: NotRequired[str]
     back_file: NotRequired[str]
     hand_file: NotRequired[str]
+    # Omitted, empty or null file values preserve saved supporting materials.
+    proof_of_address: NotRequired[str | None]
+    proof_of_address_issue_date: NotRequired[str]
+    proof_of_address_issuing_country: NotRequired[str]
+    identity_verification: NotRequired[str | None]
 
 
 class UpdateCardholderParamsKycVerificationKycProof(TypedDict, total=False):

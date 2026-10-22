@@ -190,3 +190,8 @@ def test_company_business_details_v3_required_fields_and_purposes():
         "TREASURY_FX",
         "OTHERS",
     }
+
+
+def test_company_supporting_documents_are_optional():
+    assert _is_optional(_hints(CreateSubAccountParamsCompanyOwnershipDetails)["shareholder_docs"])
+    assert _is_optional(_hints(CreateSubAccountParamsRepresentative)["face_docs"])

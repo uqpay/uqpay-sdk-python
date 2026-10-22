@@ -64,7 +64,7 @@ class CreateCardParamsCardholderRequiredFields(TypedDict, total=False):
 class CreateCardParams(TypedDict, total=False):
     card_limit: NotRequired[float]
     card_currency: Required[Literal["SGD", "USD"]]
-    cardholder_id: Required[str]
+    cardholder_id: NotRequired[str]
     card_product_id: Required[str]
     spending_controls: NotRequired[list[CreateCardParamsSpendingControls]]
     risk_controls: NotRequired[CreateCardParamsRiskControls]

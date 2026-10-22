@@ -8,6 +8,14 @@ if TYPE_CHECKING:
 
 
 class BankingPayoutsResource(BaseResource):
+    def validate(
+        self,
+        params: dict[str, Any],
+        request_options: RequestOptions | None = None,
+    ) -> dict[str, Any]:
+        """Check prerequisites without creating a payout or reserving funds."""
+        return self._get(f"/v1/payouts/validation{self._qs(params)}", request_options)
+
     def create(
         self,
         params: CreatePayoutParams,
