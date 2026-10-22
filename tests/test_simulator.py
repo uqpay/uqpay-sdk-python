@@ -64,25 +64,21 @@ def test_simulate_authorization(client: UQPayClient, simulator_card_id: str):
 
 def test_simulate_reversal(client: UQPayClient, simulator_card_id: str):
     """Simulate a reversal on an authorization."""
-    try:
-        auth_result = client.simulator.issuing.authorize({
-            "card_id": simulator_card_id,
-            "transaction_amount": 10.00,
-            "transaction_currency": "SGD",
-            "merchant_name": "SDK Test Shop",
-            "merchant_category_code": "5734",
-            "transaction_status": "APPROVED",
-        })
-        assert isinstance(auth_result, dict)
-        txn_id = (auth_result.get("transaction_id")
-                  or auth_result.get("id")
-                  or _first_id(auth_result))
-        if not txn_id:
-            pytest.skip("No transaction_id returned from simulate authorization")
-        result = client.simulator.issuing.reverse({"transaction_id": txn_id})
-        assert isinstance(result, dict)
-    except UQPayError as e:
-        pytest.skip(f"Skipped: {e}")
+    auth_result = client.simulator.issuing.authorize({
+        "card_id": simulator_card_id,
+        "transaction_amount": 10.00,
+        "transaction_currency": "SGD",
+        "merchant_name": "SDK Test Shop",
+        "merchant_category_code": "5734",
+        "transaction_status": "APPROVED",
+    })
+    assert isinstance(auth_result, dict)
+    txn_id = (auth_result.get("transaction_id")
+              or auth_result.get("id")
+              or _first_id(auth_result))
+    assert txn_id, "No transaction_id returned from simulate authorization"
+    result = client.simulator.issuing.reverse({"transaction_id": txn_id})
+    assert isinstance(result, dict)
 
 
 def test_simulate_deposit(client: UQPayClient, virtual_account):
