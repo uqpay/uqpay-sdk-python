@@ -74,3 +74,37 @@ def test_unrelated_401_does_not_refresh_or_retry(make_http):
         client.request("GET", "/v1/example")
     handler.assert_called_once()
     token.invalidate.assert_not_called()
+
+
+def test_file_upload_preserves_multipart_bytes_and_delegation(make_http):
+    from email import policy
+    from email.parser import BytesParser
+    from uqpay.resources.supporting.files import FilesResource
+
+    requests = []
+
+    def handler(request):
+        requests.append(request)
+        return httpx.Response(200, json={"file_id": "file-1"})
+
+    client, _ = make_http(handler)
+    files = FilesResource(client, "https://files.example.test")
+    assert files.upload(
+        b"\x00synthetic\xff", filename="proof.pdf", notes="proof & note",
+        request_options={"idempotency_key": "upload-key", "on_behalf_of": "sub-account"},
+    ) == {"file_id": "file-1"}
+    request, = requests
+    assert request.method == "POST"
+    assert request.url.host == "files.example.test"
+    assert request.url.path == "/v1/files/upload"
+    assert request.url.params["notes"] == "proof & note"
+    assert request.headers["x-idempotency-key"] == "upload-key"
+    assert request.headers["x-on-behalf-of"] == "sub-account"
+    message = BytesParser(policy=policy.default).parsebytes(
+        ("Content-Type: " + request.headers["content-type"] + "\r\n\r\n").encode() + request.content
+    )
+    part, = list(message.iter_parts())
+    assert part.get_param("name", header="content-disposition") == "file"
+    assert part.get_filename() == "proof.pdf"
+    assert part.get_content_type() == "application/pdf"
+    assert part.get_payload(decode=True) == b"\x00synthetic\xff"
