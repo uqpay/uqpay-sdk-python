@@ -51,18 +51,15 @@ def test_simulator_raises_in_production():
 
 def test_simulate_authorization(client: UQPayClient, simulator_card_id: str):
     """Simulate a card authorization using the simulator card ID."""
-    try:
-        result = client.simulator.issuing.authorize({
-            "card_id": simulator_card_id,
-            "transaction_amount": 10.00,
-            "transaction_currency": "SGD",
-            "merchant_name": "SDK Test Shop",
-            "merchant_category_code": "5734",
-            "transaction_status": "APPROVED",
-        })
-        assert isinstance(result, dict)
-    except UQPayError as e:
-        pytest.skip(f"Skipped: {e}")
+    result = client.simulator.issuing.authorize({
+        "card_id": simulator_card_id,
+        "transaction_amount": 10.00,
+        "transaction_currency": "SGD",
+        "merchant_name": "SDK Test Shop",
+        "merchant_category_code": "5734",
+        "transaction_status": "APPROVED",
+    })
+    assert isinstance(result, dict)
 
 
 def test_simulate_reversal(client: UQPayClient, simulator_card_id: str):
