@@ -31,3 +31,28 @@ capture: CapturePaymentIntentParams = {"amount_to_capture": "6.00", "merchant_ca
 numeric_capture: CapturePaymentIntentParams = {"amount_to_capture": 6.0}  # type: ignore[typeddict-item]
 non_final_capture: CapturePaymentIntentParams = {"final_capture": False}  # type: ignore[typeddict-item]
 card_check: CheckBeneficiaryParams = {"entity_type": "INDIVIDUAL", "payment_method": "CARD", "currency": "USD", "account_number": "synthetic"}
+
+
+from uqpay.types.banking import CreatePayoutParams
+from uqpay.types.banking._create_payout_params import CreatePayoutParamsBeneficiaryAddress
+
+nationality_only: CreatePayoutParamsBeneficiaryAddress = {"nationality": "US"}
+city_only: CreatePayoutParamsBeneficiaryAddress = {"city": "Boston"}
+payout: CreatePayoutParams = {
+    "currency": "USD", "amount": "1", "purpose_code": "BILL_PAYMENT",
+    "beneficiary": {
+        "entity_type": "INDIVIDUAL", "payment_method": "CARD",
+        "bank_details": {
+            "account_holder": "Test Recipient", "account_number": "1234567890123",
+            "account_currency_code": "USD", "bank_country_code": "US",
+            "clearing_system": "MASTERCARD SEND", "card_expiry": "2099-12",
+        },
+        "address": nationality_only,
+    },
+}
+
+
+# Assign metadata is optional globally and carries the Personal Visa SKU when supplied.
+assign_personal_visa: AssignCardParams = {"cardholder_id": "holder-1", "card_number": "synthetic", "card_currency": "USD", "card_mode": "SINGLE", "metadata": {"card_sku_code": "SKU123456789"}}
+assign_without_metadata: AssignCardParams = {"card_number": "synthetic", "card_currency": "USD", "card_mode": "SINGLE"}
+assign_missing_sku: AssignCardParams = {"card_number": "synthetic", "card_currency": "USD", "card_mode": "SINGLE", "metadata": {}}  # type: ignore[typeddict-item]

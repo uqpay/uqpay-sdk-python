@@ -20,9 +20,9 @@ class CreatePayoutParamsBeneficiaryBankDetails(TypedDict, total=False):
 
 
 class CreatePayoutParamsBeneficiaryAddress(TypedDict, total=False):
-    country: Required[str]
+    country: NotRequired[str]
     nationality: NotRequired[str]
-    city: Required[str]
+    city: NotRequired[str]
     street_address: NotRequired[str]
     postal_code: NotRequired[str]
     state: NotRequired[str]

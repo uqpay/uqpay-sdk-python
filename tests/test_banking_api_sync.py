@@ -39,3 +39,31 @@ def test_banking_api_sync_wire_and_rule_retention():
     hints = get_type_hints(CreatePayoutParams, include_extras=True)
     for field in ("payout_reference", "fee_paid_by", "payout_date"):
         assert get_origin(hints[field]) is NotRequired
+
+
+def test_sparse_individual_card_address_public_request():
+    from uqpay.types.banking._create_payout_params import CreatePayoutParamsBeneficiaryAddress
+
+    hints = get_type_hints(CreatePayoutParamsBeneficiaryAddress, include_extras=True)
+    for field in ("country", "city"):
+        assert get_origin(hints[field]) is NotRequired
+    http = FakeHttp()
+    banking = BankingResource(http)
+    card = {
+        "entity_type": "INDIVIDUAL", "payment_method": "CARD",
+        "bank_details": {
+            "account_holder": "Test Recipient", "account_number": "1234567890123",
+            "account_currency_code": "USD", "bank_country_code": "US",
+            "clearing_system": "MASTERCARD SEND", "card_expiry": "2099-12",
+        },
+        "address": {"nationality": "US"},
+    }
+    body: CreatePayoutParams = {
+        "currency": "USD", "amount": "1", "purpose_code": "BILL_PAYMENT",
+        "beneficiary": card,
+    }
+    options = {"on_behalf_of": "sub-account"}
+    banking.payouts.create(body, options)
+    method, path, sent_body, sent_options = http.calls[-1]
+    assert (method, path, sent_options) == ("POST", "/v1/payouts", options)
+    assert sent_body["beneficiary"]["address"] == {"nationality": "US"}

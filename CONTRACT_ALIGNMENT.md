@@ -19,6 +19,10 @@ Targeted regressions exercise request method/path, serialization, response decod
 
 `CapturePaymentIntentParams.amount_to_capture` is a string, for example `"50.00"`. Runtime dictionary responses retain new fields unchanged. PGP authorization-decision decryption now parses `PGPMessage.from_blob` as a message rather than unpacking it as a key tuple. Local encrypted roundtrip and callback-failure tests cover this fix. Authentication and multipart tests use local mocks; API failures in the touched simulator integration test propagate instead of becoming skips.
 
+### Cross-client contract details
+
+Assignment accepts optional `metadata.card_sku_code` for Personal Visa. Inline individual CARD beneficiary addresses may contain only the supplied fields; country/city are no longer universally required by the shared address type. Bank and company field requirements remain server-authoritative. Existing calls without metadata remain valid.
+
 ## Published 3.1.0 baseline
 
 Compatibility cohort: **3.1.0**. This release preserves the 4.0.0 API behavior under the 3.x version line. It does not restore the 3.0.0 API contract; the migration requirements below still apply.
