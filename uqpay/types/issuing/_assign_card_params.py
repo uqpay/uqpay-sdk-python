@@ -3,7 +3,7 @@ from typing_extensions import Literal, NotRequired, Required, TypedDict
 
 
 class AssignCardParams(TypedDict, total=False):
-    cardholder_id: Required[str]
+    cardholder_id: NotRequired[str]
     card_number: Required[str]
     card_currency: Required[str]
     card_mode: Required[Literal["SINGLE", "SHARE"]]

@@ -34,14 +34,33 @@ class CreatePaymentIntentParamsPaymentMethodCard(TypedDict, total=False):
     network: Required[Literal["visa", "mastercard", "unionpay"]]
     billing: Required[CreatePaymentIntentParamsPaymentMethodCardBilling]
     auto_capture: NotRequired[bool]
-    authorization_type: Required[Literal["authorization", "pre_authorization"]]
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
     three_ds_action: Required[Literal["enforce_3ds", "skip_3ds"]]
     three_ds: NotRequired[CreatePaymentIntentParamsPaymentMethodCardThreeDs]
 
 
+class CreatePaymentIntentParamsPaymentMethodCardPresent(TypedDict, total=False):
+    card_number: Required[str]
+    expiry_month: Required[str]
+    expiry_year: Required[str]
+    pan_entry_mode: Required[Literal["manual_entry", "chip", "magstripe", "contactless_chip", "contactless_magstripe"]]
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
+    auto_capture: NotRequired[bool]
+    cardholder_verification_method: NotRequired[str]
+    encrypted_pin: NotRequired[str]
+    fallback: NotRequired[bool]
+    fallback_reason: NotRequired[str]
+    emv_tags: NotRequired[str]
+    track1: NotRequired[str]
+    track2: NotRequired[str]
+    terminal_info: NotRequired[dict[str, object]]
+    system_trace_audit_number: NotRequired[str]
+
+
 class CreatePaymentIntentParamsPaymentMethod(TypedDict, total=False):
-    type: Required[Literal["card"]]
-    card: Required[CreatePaymentIntentParamsPaymentMethodCard]
+    type: Required[Literal["card", "card_present"]]
+    card: NotRequired[CreatePaymentIntentParamsPaymentMethodCard]
+    card_present: NotRequired[CreatePaymentIntentParamsPaymentMethodCardPresent]
 
 
 class CreatePaymentIntentParamsPaymentOrdersProducts(TypedDict, total=False):
@@ -91,6 +110,7 @@ class CreatePaymentIntentParamsMetadata(TypedDict, total=False):
 
 
 class CreatePaymentIntentParams(TypedDict, total=False):
+    authorization_type: NotRequired[Literal["authorization", "pre_authorization"]]
     amount: Required[str]
     currency: Required[str]
     payment_method: NotRequired[CreatePaymentIntentParamsPaymentMethod]

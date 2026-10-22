@@ -19,3 +19,15 @@ art_update: UpdateCardParams = {"card_art_id": "art-1", "name_on_card": "Test"}
 
 from uqpay.types.issuing._create_card_params import CreateCardParamsCardholderRequiredFields
 inline_holder: CreateCardParamsCardholderRequiredFields = {"email": "test@example.test", "first_name": "Test", "last_name": "User", "country_code": "SG"}
+
+
+# The current contract permits Business default holders and supporting-only updates.
+from uqpay.types.issuing import CreateCardParams, AssignCardParams, UpdateCardholderParams
+from uqpay.types.payment import CapturePaymentIntentParams
+business_card: CreateCardParams = {"card_currency": "USD", "card_product_id": "product-1"}
+assign_default: AssignCardParams = {"card_number": "synthetic", "card_currency": "USD", "card_mode": "SINGLE"}
+supporting_update: UpdateCardholderParams = {"identity": {"proof_of_address": "cGRm", "proof_of_address_issue_date": "2026-10-01", "proof_of_address_issuing_country": "SG", "identity_verification": "a3lj"}}
+capture: CapturePaymentIntentParams = {"amount_to_capture": "6.00", "merchant_capture_order_id": "capture-1", "final_capture": True}
+numeric_capture: CapturePaymentIntentParams = {"amount_to_capture": 6.0}  # type: ignore[typeddict-item]
+non_final_capture: CapturePaymentIntentParams = {"final_capture": False}  # type: ignore[typeddict-item]
+card_check: CheckBeneficiaryParams = {"entity_type": "INDIVIDUAL", "payment_method": "CARD", "currency": "USD", "account_number": "synthetic"}

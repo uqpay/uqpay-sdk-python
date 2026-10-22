@@ -69,7 +69,7 @@ class PgpContext:
 
     def decrypt(self, ciphertext: str) -> str:
         """Decrypt a PGP-armored message using our private key."""
-        msg, _ = pgpy.PGPMessage.from_blob(ciphertext)
+        msg = pgpy.PGPMessage.from_blob(ciphertext)
         if self._private_key.is_protected:
             with self._private_key.unlock(self._passphrase or ""):
                 decrypted = self._private_key.decrypt(msg)

@@ -19,6 +19,11 @@ class CreateCardholderParamsIdentity(TypedDict, total=False):
     front_file: Required[str]
     back_file: NotRequired[str]
     hand_file: NotRequired[str]
+    # Omitted, empty or null file values preserve saved supporting materials.
+    proof_of_address: NotRequired[str | None]
+    proof_of_address_issue_date: NotRequired[str]
+    proof_of_address_issuing_country: NotRequired[str]
+    identity_verification: NotRequired[str | None]
 
 
 class CreateCardholderParamsKycVerificationKycProof(TypedDict, total=False):

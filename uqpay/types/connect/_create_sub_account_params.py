@@ -83,6 +83,7 @@ class CreateSubAccountParamsIdentityVerification(TypedDict, total=False):
     identification_type: Required[Literal["PASSPORT", "NATIONAL_ID", "DRIVING_LICENSE"]]
     identification_value: Required[str]
     identity_docs: Required[List[str]]
+    face_docs: NotRequired[List[str]]
 
 
 class CreateSubAccountParamsRepresentative(TypedDict, total=False):
@@ -105,6 +106,7 @@ class CreateSubAccountParamsRepresentative(TypedDict, total=False):
     identification_type: Required[str]
     identification_value: Required[str]
     identity_docs: Required[List[str]]
+    face_docs: NotRequired[List[str]]
 
 
 class CreateSubAccountParamsOwnershipDetails(TypedDict, total=False):
